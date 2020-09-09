@@ -8,6 +8,6 @@ class Pesan extends BaseController
 {
     public function index()
     {
-        echo view('pesan/pesan');
+        parent::masterView('pesan/pesan', []);
     }
 }

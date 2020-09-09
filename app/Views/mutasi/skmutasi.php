@@ -23,8 +23,8 @@
                                 <th colspan="2">Action</th>
                             </tr>
                             <tr>
-                                <th>Show</th>
-                                <th>Edit</th>
+                                <th style="text-align: center;">Show</th>
+                                <th style="text-align: center;">Edit</th>
                             </tr>
                         </thead>
                         <tfoot>
@@ -32,8 +32,8 @@
                                 <th rowspan="2">No</th>
                                 <th rowspan="2">No SK Mutasi</th>
                                 <th rowspan="2">Tanggal Mutasi</th>
-                                <th>Show</th>
-                                <th>Edit</th>
+                                <th style="text-align: center;">Show</th>
+                                <th style="text-align: center;">Edit</th>
                             </tr>
                             <tr style="text-align: center;">
                                 <th colspan="2">Action</th>
@@ -44,13 +44,14 @@
                                 <td>{{$index +1}}</td>
                                 <td>{{d.no_sk}}</td>
                                 <td>{{d.tgl_mutasi}}</td>
-                                <td>
-                                    <button type="button" class="btn btn-info"
-                                        ng-click="toMutasi(d.id_mutasi)">Show</button>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn btn-info" ng-click="toMutasi(d.id_mutasi)"><i
+                                            class="fas fa-eye"> Show</i></button>
                                 </td>
-                                <td>
+                                <td style="text-align: center;">
                                     <button type="button" class="btn btn-primary"
-                                        ng-click="getDetailSKMutasi(d.id_mutasi)">Edit</button>
+                                        ng-click="getDetailSKMutasi(d.id_mutasi)"><i class="fas fa-edit">
+                                            Edit</i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -70,8 +71,10 @@
                         </div>
                         <div class="modal-body" ng-init="option()">
                             <div class="alert alert-danger alert-dismissable" ng-show="error">
-                                <a href="#" class="close" data-dismiss="alert"
-                                    aria-label="close">&times;</a>{{errorMessage}}
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
+                            </div>
+                            <div class="alert alert-success alert-dismissable" ng-show="success">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
                             </div>
                             <div class="form-group" ng-hide="hide">
                                 <label>No SK Mutasi</label><br>
@@ -95,8 +98,9 @@
                                     ng-readonly="readOnly">
                             </div>
                             <div class="modal-footer">
-                                <input type="text" name="id_mutasi" ng-model="id_mutasi" ng-hide="false">
-                                <button type="submit" class="btn btn-info col-sm-3 mb-6">Simpan</button>
+                                <input type="text" name="id_mutasi" ng-model="id_mutasi" ng-hide="true">
+                                <button type="submit" class="btn btn-info col-sm-3 mb-6"><i class="fas fa-edit">
+                                        Update</i></button>
                                 <button type="button" class="btn btn-danger col-sm-3 mb-6"
                                     ng-click="actionbtnSkMutasi()">Kembali</button>
                             </div>

@@ -8,17 +8,14 @@ use App\Controllers\Main\Pegawai as MainPegawai;
 use App\Models\ModelJabatan;
 use App\Models\ModelPangkat;
 use App\Models\ModelPegawai;
+use App\Models\ModelPesan;
+use App\Models\ModelSKp;
 use App\Models\ModelUser;
 
 use function PHPSTORM_META\type;
 
 class Pegawai extends BaseController
 {
-    // public function index()
-    // {
-    //     $model = new ModelPegawai();
-    //     echo json_encode($model->getPegawais());
-    // }
     public function index($role)
     {
 
@@ -38,32 +35,18 @@ class Pegawai extends BaseController
         $dataJSON = $this->request->getJSON(true);
         $errortext[] = '';
         $message = '';
-        $nama = array('nama' => $dataJSON['nama']);
         $whereuser = array('id_user' => $dataJSON['id_pegawai']);
 
-        if ($this->lastRole() == 1) {
-            if ($this->validator->run($dataJSON, 'textpns')) {
-                array_pop($dataJSON);
-                if ($model->insertData($dataJSON) && $modeluser->updateData($whereuser, $nama)) {
-                    $message = "Berhasil Menyimpan Data";
-                } else {
-                    $errortext[] = "Gagal Menyimpan Data";
-                }
+        if ($this->validator->run($dataJSON, 'textpns')) {
+            $nama = array('nama' => $dataJSON['nama']);
+            array_pop($dataJSON);
+            if ($model->insertData($dataJSON) && $modeluser->updateData($whereuser, $nama)) {
+                $message = "Berhasil Menyimpan Data";
             } else {
-                $errortext[] = implode(', ', $this->validator->getErrors());
+                $errortext[] = "Gagal Menyimpan Data";
             }
-        } else if ($this->lastRole() == 2) {
-            if ($this->validator->run($dataJSON, 'textkontrak')) {
-                $dataJSON['tgl_pensiun'] = null;
-                array_pop($dataJSON);
-                if ($model->insertData($dataJSON) && $modeluser->updateData($whereuser, $nama)) {
-                    $message = "Berhasil Menyimpan Data";
-                } else {
-                    $errortext[] = "Gagal Menyimpan Data";
-                }
-            } else {
-                $errortext[] = implode(', ', $this->validator->getErrors());
-            }
+        } else {
+            $errortext[] = implode(', ', $this->validator->getErrors());
         }
         $validationtext = implode('', $errortext);
         $output = array('errortext' => $validationtext, 'message' => $message);
@@ -103,7 +86,7 @@ class Pegawai extends BaseController
         echo json_encode($modeldetail->getPegawai($where));
     }
 
-    public function updateData($id, $role)
+    public function updateData($id)
     {
         $modelpegawai = new ModelPegawai();
         $modeluser = new ModelUser();
@@ -113,24 +96,14 @@ class Pegawai extends BaseController
         $wherepeg = array('id_pegawai' => $id);
         $whereuser = array('id_user' => $id);
         $nama = array('nama' => $dataJSON['nama']);
-        if ($role == 1) {
-            if ($this->validator->run($dataJSON, 'textpns')) {
-                array_pop($dataJSON);
-                $modelpegawai->updateData($wherepeg, $dataJSON);
-                $modeluser->updateData($whereuser, $nama);
-                $message = "Berhasil Menyimpan Data";
-            } else {
-                $errortext[] = implode(', ', $this->validator->getErrors());
-            }
-        } else if ($role == 2) {
-            if ($this->validator->run($dataJSON, 'textkontrak')) {
-                array_pop($dataJSON);
-                $modelpegawai->updateData($wherepeg, $dataJSON);
-                $modeluser->updateData($whereuser, $nama);
-                $message = "Berhasil Menyimpan Data";
-            } else {
-                $errortext[] = implode(', ', $this->validator->getErrors());
-            }
+        if ($this->validator->run($dataJSON, 'textpnsEdit')) {
+            array_pop($dataJSON);
+            $modelpegawai->updateData($wherepeg, $dataJSON);
+            $modeluser->updateData($whereuser, $nama);
+            $message = "Berhasil Mengubah Data";
+            // }
+        } else {
+            $errortext[] = implode(', ', $this->validator->getErrors());
         }
         $validationtext = implode('', $errortext);
         $output = array('errortext' => $validationtext, 'message' => $message);
@@ -147,5 +120,96 @@ class Pegawai extends BaseController
                 unlink("./foto/" . $dataJSON['fotodelete']);
             }
         }
+    }
+
+    public function getdataPensiun()
+    {
+        // nanti get data pensiun jika terdapat data pensiun pada tahun tersebut dengna get tahun dan ditambah 2 tahun terakhir
+        $model = new ModelPegawai();
+        $where = array('role' => 1, 'status' => 1);
+        $data = $model->getPegawai($where);
+        $thnNow =  date("Y");
+        $thnNow = strval(1 + ((int)$thnNow));
+        $datapensiun = [];
+        foreach ($data as $key) {
+            $datepensiun = strtotime($key->tgl_pensiun);
+            $tahunPensiun = strval(date("Y", $datepensiun));
+            if ($tahunPensiun == $thnNow) {
+                $datapensiun[] = $key;
+            }
+        }
+        if ($datapensiun != null) {
+            echo json_encode($datapensiun);
+        }
+    }
+
+    public function getLengthPeg()
+    {
+        $model = new ModelPegawai();
+        $where = array('status' => '1');
+        $dataLength = $model->getPegawai($where);
+        $dataLength = count($dataLength);
+        echo json_encode($dataLength);
+    }
+
+    public function getLengthPesan()
+    {
+        $model = new ModelPesan();
+        $modelPeg = new ModelPegawai();
+
+        $where = array('status' => '1');
+        $dataLength = $model->getDataPesan();
+        $dataLengthTerkirim = $model->getPesan($where);
+        $dataLength = count($dataLength);
+        $dataLengthTerkirim = count($dataLengthTerkirim);
+        $output = array('pesanTerkirim' => $dataLengthTerkirim, 'allPesan' => $dataLength);
+        echo json_encode($output);
+    }
+
+    public function getChartPensiun()
+    {
+        $model = new ModelPegawai();
+        $data = $model->getPegawais();
+        $dataTahun = null;
+        $jumlahPensiun = '';
+        $clearArray = [];
+        foreach ($data as $key) {
+            $tahun =  explode('-', $key->tgl_pensiun);
+            $dataTahun[] = $tahun[0];
+        }
+        if ($dataTahun != null) {
+            # code...
+            $jumlahPensiun = array_count_values($dataTahun);
+            $clearArray[] = array_unique($dataTahun);
+        }
+        $output = array('dataTahun' => $clearArray, 'jumlahPensiun' => $jumlahPensiun);
+        echo json_encode($output);
+    }
+
+    public function getChartSkp()
+    {
+        $modelPeg = new ModelPegawai();
+        $model = new ModelSKp();
+        $arrayPeg = [];
+        $arraySkp = [];
+        $where = array('tahun_skp' => date("Y"));
+        $dataPeg = $modelPeg->getPegawais();
+        $dataSkp = $model->getSkps($where);
+        foreach ($dataPeg as $key) {
+            $arrayPeg[] = $key->nip;
+        }
+        foreach ($dataSkp as $key) {
+            $arraySkp[] = $key->tahun_skp;
+        }
+        $dataPeg = count($arrayPeg);
+        $dataSkp = count($arraySkp);
+        if ($dataSkp == 0) {
+            $tidakMengirim = $dataPeg;
+        } else {
+            $tidakMengirim = $dataPeg - $dataSkp;
+        }
+
+        $output = array('tidakMengirim' => $tidakMengirim, 'mengirim' => $dataSkp, 'tahun' => date("Y"));
+        echo json_encode($output);
     }
 }

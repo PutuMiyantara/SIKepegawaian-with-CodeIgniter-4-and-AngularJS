@@ -52,7 +52,7 @@ class Validation
 	// Rules PEGAWAI
 	//--------------------------------------------------------------------
 	public $textpns = [
-		'nip'     => 'required|numeric|exact_length[18]',
+		'nip'     => 'required|numeric|exact_length[18]|is_unique[tb_pegawai.nip]',
 		'nama' => 'required',
 		'tgl_lahir' => 'required|valid_date',
 		'alamat' => 'required',
@@ -70,9 +70,10 @@ class Validation
 			'required' => 'NIP Masih Kosong',
 			'exact_length'    => 'NIP Harus 18 Karakter',
 			'numeric' => 'NIP Harus Berupa Angka',
+			'is_unique' => 'NIP Sudah Terdapat Pada Sistem',
 		],
 		'tgl_lahir' => [
-			'required' => 'Tanggal Lahir Masih Kosong', 'valid_date' => 'Masukan Tanggal Lahir Dengan Benar'
+			'required' => 'Format NIP Salah', 'valid_date' => ''
 		],
 		'alamat' => [
 			'required' => 'Alamat Masih Kosong'
@@ -90,32 +91,50 @@ class Validation
 			'required' => 'Pendidikan Terkhir Masih Kosong'
 		],
 		'tgl_pensiun' => [
-			'required' => 'Tanggal Pensiun Masih Kosong', 'valid_date' => 'Bukan Format Tanggal Pensiun'
+			'required' => '', 'valid_date' => ''
 		]
 	];
 
-	public $textkontrak = [
+	public $textpnsEdit = [
+		'nip'     => 'required|numeric|exact_length[18]',
 		'nama' => 'required',
 		'tgl_lahir' => 'required|valid_date',
 		'alamat' => 'required',
+		'tempat_bekerja' => 'required',
+		'id_pangkat' => 'required',
+		'id_jabatan' => 'required',
 		'pend_terakhir' => 'required',
-		'tempat_bekerja' => 'required'
+		'tgl_pensiun' => 'required|valid_date'
 	];
-	public $textkontrak_errors = [
+	public $textpnsEdit_errors  = [
 		'nama' => [
 			'required' => 'Nama Masih Kosong'
 		],
+		'nip' => [
+			'required' => 'NIP Masih Kosong',
+			'exact_length'    => 'NIP Harus 18 Karakter',
+			'numeric' => 'NIP Harus Berupa Angka',
+		],
 		'tgl_lahir' => [
-			'required' => 'Tanggal Lahir Masih Kosong', 'valid_date' => 'Masukan Tanggal Lahir Dengan Benar'
+			'required' => 'Format NIP Salah', 'valid_date' => ''
 		],
 		'alamat' => [
 			'required' => 'Alamat Masih Kosong'
 		],
+		'tempat_bekerja' => [
+			'required' => 'Tempat Bekerja Masih Kosong'
+		],
+		'id_pangkat' => [
+			'required' => 'Pangkat Masih Kosong'
+		],
+		'id_jabatan' => [
+			'required' => 'Jabatan Masih Kosong'
+		],
 		'pend_terakhir' => [
 			'required' => 'Pendidikan Terkhir Masih Kosong'
 		],
-		'tempat_bekerja' => [
-			'required' => 'Tempat Berkerja Masih Kosong'
+		'tgl_pensiun' => [
+			'required' => '', 'valid_date' => ''
 		]
 	];
 
@@ -123,20 +142,19 @@ class Validation
 	// Rules USER
 	//--------------------------------------------------------------------
 	public $userfoto = [
-		'foto' => 'uploaded[foto]|max_size[foto,1024]|mime_in[foto,image/png,image/jpg,image/jpeg]'
+		'foto' => 'uploaded[foto]|max_size[foto,1024]|mime_in[foto,image/jpg,image/jpeg,image/png]'
 	];
 	public $userfoto_errors = [
 		'foto' => [
-			'uploaded' => 'Foto Tidak Tersimpan',
+			'uploaded' => 'Foto Belum Dipilih',
 			'max_size' => 'Max Size [1Mb]',
-			'mime_in' => 'Format Didukung[jpg/jpeg]'
+			'mime_in' => 'Format Foto Didukung[jpg/jpeg]'
 		]
 	];
 	public $usertext = [
 		'email' => 'required|valid_email',
 		'password' => 'required|min_length[8]',
 		'repass' => 'required|matches[password]',
-		'role' => 'required',
 	];
 	public $usertext_errors = [
 		'email' => [
@@ -146,10 +164,7 @@ class Validation
 			'required' => 'Password Masih Kosong', 'min_length' => 'Password Minimal 8 Karakter'
 		],
 		'repass' => [
-			'required' => 'Verifikasi Password Masih Kosong', 'matches' => 'Password Berbeda'
-		],
-		'role' => [
-			'required' => 'Role Pegawai Masih Kosong'
+			'required' => 'Verifikasi Password Masih Kosong', 'matches' => 'Password dan Repeat Password Berbeda'
 		]
 	];
 
@@ -165,6 +180,18 @@ class Validation
 			'required' => 'Status Pegawai Masih Kosong'
 		]
 	];
+	public $uploaded = [
+		'foto' => 'uploaded[foto]'
+	];
+	public $userfotoEdit = [
+		'foto' => 'max_size[foto,1024]|mime_in[foto,image/jpg,image/jpeg]'
+	];
+	public $userfotoEdit_errors = [
+		'foto' => [
+			'max_size' => 'Max Size [1Mb]',
+			'mime_in' => 'Format Foto Didukung[jpg/jpeg]'
+		]
+	];
 
 	//--------------------------------------------------------------------
 	// Rules MUTASI
@@ -172,15 +199,19 @@ class Validation
 	public $mutasitext = [
 		'id_mutasi' => 'required',
 		'id_pegawai' => 'required',
+		'unit_asal' => 'required',
 		'unit_tujuan' => 'required',
 		'status_mutasi' => 'required'
 	];
 	public $mutasitext_errors = [
 		'id_mutasi' => [
-			'required' => 'Masukan NO SK Dengan Benar'
+			'required' => 'NO SK Tidak Ditemukan'
 		],
 		'id_pegawai' => [
 			'required' => 'NIP atau Nama Pegawai Tidak Ditemukan'
+		],
+		'unit_asal' => [
+			'required' => 'Unit Asal Masih Kosong'
 		],
 		'unit_tujuan' => [
 			'required' => 'Unit Tujuan Masih Kosong'
@@ -191,13 +222,12 @@ class Validation
 	];
 
 	public $skmutasi = [
-		'no_sk' => 'required|is_unique[tb_mutasi.no_sk]',
+		'no_sk' => 'required',
 		'tgl_mutasi' => 'required',
 	];
 	public $skmutasi_errors = [
 		'no_sk' => [
 			'required' => 'NO SK Mutasi Masih Kosong',
-			'is_unique' => 'NO SK Mutasi Terdapat pada Sistem'
 		],
 		'tgl_mutasi' => [
 			'required' => 'Tanggal Mutasi Masih Kosong'
@@ -226,7 +256,7 @@ class Validation
 		'nip_atasan_pejpen' => 'required|numeric|exact_length[18]',
 		'status_atasan_pejpen' => 'required',
 		'nama_pejpen' => 'required',
-		'nip_pejpen' => 'required',
+		'nip_pejpen' => 'required|numeric|exact_length[18]',
 		'status_pejpen' => 'required',
 		'tahun_skp' => 'required|exact_length[4]',
 		'nilai_skp' => 'required',
@@ -255,7 +285,7 @@ class Validation
 		'status_pejpen' => ['required' => 'Status Pej.Pen Kosong'],
 		'tahun_skp' => [
 			'required' => 'Tahun SKP Kosong',
-			'exact_length' => 'Masukan Tagun SKP dengan Benar'
+			'exact_length' => 'Masukan Tahun SKP dengan Benar'
 		],
 		'nilai_skp' => ['required' => 'Nilai SKP Kosong'],
 		'nilai_pelayanan' => ['required' => 'Nilai Pelayanan Kosong'],
@@ -269,7 +299,36 @@ class Validation
 	//--------------------------------------------------------------------
 	// Rules PESAN
 	//--------------------------------------------------------------------
-	public $pesan = [
-		'id_pegawai' => 'is_unique[tb_pesan.id_pegawai]',
+	public $pesanMutasi = [
+		'id_mutasi_pegawai' => 'is_unique[tb_pesan.id_mutasi_pegawai]'
+	];
+
+	//--------------------------------------------------------------------
+	// Rules Other
+	//--------------------------------------------------------------------
+	public $pangkat = [
+		'nama_pangkat' => 'required',
+		'golongan' => 'required',
+		'ruang' => 'required',
+	];
+	public $pangkat_errors = [
+		'nama_pangkat' => [
+			'required' => 'Nama Pangkat Masih Kosong',
+		],
+		'golongan' => [
+			'required' => 'Golongan Pegawai Masih Kosong',
+		],
+		'ruang' => [
+			'required' => 'Ruang Pegawai Masih Kosong',
+		],
+	];
+
+	public $jabatan = [
+		'nama_jabatan' => 'required'
+	];
+	public $jabatan_errors = [
+		'nama_jabatan' => [
+			'required' => 'Nama Jabatan Masih Kosong',
+		],
 	];
 }

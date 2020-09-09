@@ -1,17 +1,26 @@
-<?php $session = session(); ?>
+<?php $session = session();
+$uri = new \CodeIgniter\HTTP\URI(current_url()); ?>
 
 <body id="page-top" ng-app="sikepegawaian">
 
     <!-- Page Wrapper -->
-    <div id="wrapper">
+    <div id="wrapper" ng-controller="pegawai">
 
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav bg-gradient-secondary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" <?php
+                                                                                        if ($session->has('email') && $session->get('role') == 3) {
+                                                                                            echo 'href = "/home/admin"';
+                                                                                        } else {
+                                                                                            echo 'href="/home/pegawai"';
+                                                                                        }
+                                                                                        ?>>
+                <div class="sidebar-brand-icon">
+                    <i>
+                        <img src="/assets/foto/lambangdisdik.png" style="width: 60px; height: 50px;">
+                    </i>
                 </div>
                 <div class="sidebar-brand-text mx-3">SIPEG</div>
             </a>
@@ -22,8 +31,11 @@
             <div class="sidebar-heading">
                 Dashboard
             </div>
-            <li class="nav-item">
-                <a class="nav-link" href="/user/admin">
+            <li class="nav-item <?php if ($uri->getPath() == '/home/admin') : echo 'active';
+                                    else : echo '';
+                                    endif;
+                                    ?>">
+                <a class="nav-link" href="/home/admin">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -33,12 +45,15 @@
             <?php if ($session->has('email') && $session->get('role') == 1 || $session->get('role') == 2) :  ?>
             <!-- Nav Item - MYPROFIL -->
             <div class="sidebar-heading">
-                My Profil
+                Data Diri
             </div>
-            <li class="nav-item">
-                <a class="nav-link" href="/user/pegawai">
+            <li class="nav-item <?php if ($uri->getPath() == '/home/pegawai') : echo 'active';
+                                    else : echo '';
+                                    endif;
+                                    ?>">
+                <a class="nav-link" href="/home/pegawai">
                     <i class="fas fa-fw fa-users"></i>
-                    <span>My Profile</span></a>
+                    <span>Data Diri</span></a>
             </li>
             <!-- Nav Item - MYPROFIL -->
             <?php endif; ?>
@@ -49,7 +64,10 @@
             <div class="sidebar-heading">
                 User
             </div>
-            <li class="nav-item">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'user') : echo 'active';
+                                    else : echo '';
+                                    endif;
+                                    ?>">
                 <a class="nav-link" href="/user/">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Data User</span></a>
@@ -66,7 +84,10 @@
             <!-- ============================================================================ -->
             <?php if ($session->has('email') && $session->get('role') == 3) :  ?>
             <!-- Nav Item - PEGAWAI -->
-            <li class="nav-item">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'pegawai') : echo 'active';
+                                    else : echo '';
+                                    endif;
+                                    ?>">
                 <a class="nav-link" href="/pegawai/">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Data Pegawai</span></a>
@@ -77,7 +98,10 @@
             <?php if ($session->has('email') && $session->get('role') == 3 || $session->get('role') == 1) :  ?>
             <!-- Nav Item - MUTASI -->
             <?php if ($session->has('email') && $session->get('role') == 3) :  ?>
-            <li class="nav-item">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'mutasi') : echo 'active';
+                                        else : echo '';
+                                        endif;
+                                        ?>">
                 <a class=" nav-link collapsed" href="#" data-toggle="collapse" data-target="#mutasi"
                     aria-expanded="true" aria-controls="mutasi">
                     <i class="fas fa-fw fa-table"></i>
@@ -86,14 +110,26 @@
                 <div id="mutasi" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">--Pilihan--</h6>
-                        <a class="collapse-item" href="/mutasi/">Data Mutasi</a>
-                        <a class="collapse-item" href="/mutasi/tambahSkMutasi">Tambah Data SK Mutasi</a>
-                        <a class="collapse-item" href="/mutasi/tambahMutasi">Tambah Data Mutasi</a>
+                        <a class="collapse-item <?php if ($uri->getPath() == '/mutasi') : echo 'active';
+                                                        else : echo '';
+                                                        endif;
+                                                        ?>" href="/mutasi/">Data Mutasi</a>
+                        <!-- <a class="collapse-item <?php if ($uri->getPath() == '/mutasi/tambahSKMutasi') : echo 'active';
+                                                                else : echo '';
+                                                                endif;
+                                                                ?>" href="/mutasi/tambahSkMutasi">Tambah Data SK Mutasi</a> -->
+                        <a class="collapse-item <?php if ($uri->getPath() == '/mutasi/tambahMutasi') : echo 'active';
+                                                        else : echo '';
+                                                        endif;
+                                                        ?>" href="/mutasi/tambahMutasi">Tambah Data Mutasi</a>
                     </div>
                 </div>
             </li>
             <?php else :  ?>
-            <li class="nav-item">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'pegawai' && $uri->getSegment(2) == 'detailMutasi') : echo 'active';
+                                        else : echo '';
+                                        endif;
+                                        ?>">
                 <a class="nav-link" href="<?= base_url('/pegawai/detailMutasi/' . $session->get('id_user')) ?>">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Data Mutasi</span></a>
@@ -101,7 +137,13 @@
             <?php endif; ?>
             <!-- Nav Item - MUTASI -->
             <!-- Nav Item - SKP -->
-            <li class="nav-item">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'skp') : echo 'active';
+                                    elseif ($uri->getSegment(1) == 'pegawai' && $uri->getSegment(2) == 'detailSKP' && $session->get('role') == '1') :
+                                        echo 'active';
+                                    else :
+                                        echo '';
+                                    endif;
+                                    ?>">
                 <?php if ($session->has('email') && $session->get('role') == 3) :  ?>
                 <a class="nav-link" href="/skp/">
                     <?php else : ?>
@@ -111,22 +153,28 @@
                         <span>Data SKP</span></a>
             </li>
             <!-- Nav Item - SKP -->
+            <?php endif; ?>
+            <!-- ============================================================================ -->
+            <?php if ($session->has('email') && $session->get('role') == 3) :  ?>
             <!-- Nav Item - PENSIUN -->
-            <li class="nav-item">
-                <a class="nav-link" href="index.html">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'pensiun') : echo 'active';
+                                    else : echo '';
+                                    endif;
+                                    ?>">
+                <a class="nav-link" href="/pensiun/">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Data Pensiun</span></a>
             </li>
             <!-- Nav Item - PENSIUN -->
-            <?php endif; ?>
-            <!-- ============================================================================ -->
-            <?php if ($session->has('email') && $session->get('role') == 3) :  ?>
             <hr class="sidebar-divider">
             <!-- Nav Item - LAINNYA -->
             <div class="sidebar-heading">
                 Lainnya
             </div>
-            <li class="nav-item">
+            <li class="nav-item <?php if ($uri->getSegment(1) == 'jabatan' || $uri->getSegment(1) == 'pangkat' || $uri->getSegment(1) == 'pesan') : echo 'active';
+                                    else : echo '';
+                                    endif;
+                                    ?>">
                 <a class=" nav-link collapsed" href="#" data-toggle="collapse" data-target="#lainnya"
                     aria-expanded="true" aria-controls="lainnya">
                     <i class="fas fa-fw fa-table"></i>
@@ -135,9 +183,18 @@
                 <div id="lainnya" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">--Pilihan--</h6>
-                        <a class="collapse-item" href="/jabatan/">Data Jabatan</a>
-                        <a class="collapse-item" href="/pangkat/">Data Pangkat</a>
-                        <a class="collapse-item" href="/pesan/">Data Pesan</a>
+                        <a class="collapse-item <?php if ($uri->getSegment(1) == 'jabatan') : echo 'active';
+                                                    else : echo '';
+                                                    endif;
+                                                    ?>" href="/jabatan/">Data Jabatan</a>
+                        <a class="collapse-item <?php if ($uri->getSegment(1) == 'pangkat') : echo 'active';
+                                                    else : echo '';
+                                                    endif;
+                                                    ?>" href="/pangkat/">Data Pangkat</a>
+                        <a class="collapse-item <?php if ($uri->getSegment(1) == 'pesan') : echo 'active';
+                                                    else : echo '';
+                                                    endif;
+                                                    ?>" href="/pesan/">Data Pesan</a>
                     </div>
                 </div>
             </li>
@@ -148,7 +205,6 @@
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
-
         </ul>
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -156,9 +212,9 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light bg-light topbar mb-4 static-top shadow">
                     <div>
-                        <img style="width: 50px; height: 50px;" src="/foto/disdik.png">
+                        <img style="width: 50px; height: 50px;" src="/assets/foto/lambangklungkung.png">
                     </div>
                     <div>
                         <h4>SIPEG</h4>
@@ -189,78 +245,14 @@
                                 </form>
                             </div>
                         </li>
-
-                        <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
-                            </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Alerts Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to
-                                            download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All
-                                    Alerts</a>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/fn_BT9fwg_E/60x60"
-                                            alt="">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me
-                                            with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More
-                                    Messages</a>
-                            </div>
-                        </li>
-
                         <div class="topbar-divider d-none d-sm-block"></div>
-
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow" ng-init="getNamaHeader(<?= $session->get('id_user') ?>)">
+                        <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{nama}}</span>
-                                <img class="img-profile rounded-circle" src="{{foto}}">
+                                <span
+                                    class="mr-2 d-none d-lg-inline text-gray-600 small"><?= $session->get('nama') ?></span>
+                                <img class="img-profile rounded-circle" src="/foto/<?= $session->get('foto') ?>">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -283,7 +275,7 @@
                         <div class="modal fade" tabindex="1" role="dialog" id="detailuserHeader">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
-                                    <form method="POST" enctype="multipart/form-data" name="myForm"
+                                    <form method="POST" enctype="multipart/form-data" name="formUser"
                                         ng-submit="edituserHeader()">
                                         <div class="modal-header">
                                             <h4 class="modal-title" ng-model="modalTitle">{{modalTitle}}</h4>
@@ -293,7 +285,11 @@
                                         <div class="modal-body">
                                             <div class="alert alert-danger alert-dismissable" ng-show="error">
                                                 <a href="#" class="close" data-dismiss="alert"
-                                                    aria-label="close">&times;</a>{{errorMessage}}
+                                                    aria-label="close">&times;</a>{{message}}
+                                            </div>
+                                            <div class="alert alert-success alert-dismissable" ng-show="success">
+                                                <a href="#" class="close" data-dismiss="alert"
+                                                    aria-label="close">&times;</a>{{message}}
                                             </div>
                                             <div class="col-sm-12 mb-6 mb-sm-0">
                                                 <div class="col"><label>Nama</label></div>
@@ -307,11 +303,11 @@
                                             <div class="col-sm-12 mb-6 mb-sm-0">
                                                 <div class="col"><label>Email</label><br>
                                                     <small style="color: red;"
-                                                        ng-show="myForm.email.$touched && myForm.email.$error.required">Masukan
+                                                        ng-show="formUser.email.$touched && formUser.email.$error.required">Masukan
                                                         Alamat
                                                         Email</small>
                                                     <small style="color: red;"
-                                                        ng-show="myForm.email.$dirty && myForm.email.$error.email">Masukan
+                                                        ng-show="formUser.email.$dirty && formUser.email.$error.email">Masukan
                                                         Email
                                                         dengan
                                                         Benar</small>
@@ -320,8 +316,7 @@
                                                     <div class="form-group row">
                                                         <input type="email" class="form-control" name="email"
                                                             ng-model="email" ng-required="true"
-                                                            ng-style="myForm.email.$dirty && myForm.email.$invalid && {'border':'solid red'}"
-                                                            ng-readonly="readOnly">
+                                                            ng-style="formUser.email.$dirty && formUser.email.$invalid && {'border':'solid red'}">
                                                     </div>
                                                 </div>
                                             </div>
@@ -332,10 +327,10 @@
                                                 <div class="form-group row">
                                                     <div class="col-sm-6">
                                                         <small style="color: red;"
-                                                            ng-show="myForm.password.$touched && myForm.password.$error.required">Masukan
+                                                            ng-show="formUser.password.$touched && formUser.password.$error.required">Masukan
                                                             Password</small>
                                                         <small style="color: red;"
-                                                            ng-if="myForm.password.$dirty && password.length < 8">Minimal
+                                                            ng-if="formUser.password.$dirty && password.length < 8">Minimal
                                                             8 Karakter</small>
                                                     </div>
                                                     <div class="col-sm-6"><small ng-style="s_msg">{{msg}}</small></div>
@@ -350,24 +345,8 @@
                                                             ng-change="check()" ng-style="srepass">
                                                     </div>
                                                     <div><span class="{{showHide}}"
-                                                            style="cursor: pointer; margin-top: 10px"
-                                                            ng-click="showPassword()"
+                                                            style="cursor: pointer; margin-top: 10px" ord()"
                                                             style="align-content: center"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 mb-6 mb-sm-0">
-                                                <div class="col"><label>Status Aktif</label></div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-12 mb-6 mb-sm-0">
-                                                        <small style="color: red;"
-                                                            ng-show="myForm.status.$touched && myForm.status.$error.required">Pilih
-                                                            Status Aktif Pegawai</small>
-                                                        <select name="status" class="form-control" ng-model="status"
-                                                            ng-required="true" ng-disabled="readOnly">
-                                                            <option value="1">Aktif</option>
-                                                            <option value="2">Tidak Aktif</option>
-                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -375,8 +354,9 @@
                                                 <div class="col"><label>Foto</label></div>
                                                 <div class="form-group row">
                                                     <div class="col-3">
-                                                        <img style="width: 80px; height: 100px;" src="{{foto}}"
-                                                            ng-hide="false" class="img-thumbnail">
+                                                        <img style="width: 80px; height: 100px;"
+                                                            src="/foto/<?= $session->get('foto') ?>" ng-hide="false"
+                                                            class="img-thumbnail">
                                                     </div>
                                                     <div class="col-9">
                                                         <input type="file" class="form-control" name="file_foto"
@@ -389,11 +369,12 @@
                                             <!-- <li ng-repeat="file in files">{{file.name}}</li> -->
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="text" name="iduser" ng-model="iduser" ng-hide="false">
+                                            <input type="text" name="iduser" ng-model="iduser" ng-hide="true">
                                             <!-- <input type="text" name="file_lama" ng-model="file_lama" ng-hide="false"> -->
-                                            <button type="submit" class="btn btn-success col-sm-3 mb-6">Simpan</button>
+                                            <button type="submit" class="btn btn-success col-sm-3 mb-6"><i
+                                                    class="fas fa-edit"> Update</i></button>
                                             <button type="button" class="btn btn-danger col-sm-3 mb-6"
-                                                ng-click="actionbtn()">Kembali</button>
+                                                ng-click="closeModal('#detailuserHeader')">Kembali</button>
                                         </div>
                                     </form>
                                 </div>

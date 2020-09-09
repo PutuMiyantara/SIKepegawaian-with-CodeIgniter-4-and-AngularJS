@@ -1,32 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>SB Admin 2 - Login</title>
-    <script src="<?= base_url('assets/angularjs/angular.js') ?>"></script>
-    <script src="<?= base_url('assets/angularjs/jquery.min.js') ?>"></script>
-    <script src="<?= base_url('assets/angularjs/angular.js') ?>"></script>
-    <script src="<?= base_url('assets/angularjs/angular-datatables.min.js') ?>"></script>
-    <script src="<?= base_url('assets/angularjs/jquery.dataTables.min.js') ?>"></script>
-    <script type="text/javascript" src="<?php echo base_url('assets/angular/sikepegawaian.js'); ?>"></script>
-    <script type="text/javascript" src="<?php echo base_url('assets/angular/auth.js'); ?>"></script>
-
-    <!-- Custom fonts for this template-->
-    <link href="<?= base_url('/assets/vendor/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <!-- Custom styles for this template-->
-    <link href="<?= base_url('/assets/css/sb-admin-2.min.css') ?>" rel="stylesheet">
-</head>
-
 <body class="bg-gradient-light" ng-app="sikepegawaian">
 
     <div class="container">
@@ -34,27 +5,40 @@
         <!-- Outer Row -->
         <div class="row justify-content-center">
 
-            <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="col-xl-6 col-lg-8 col-md-5">
 
                 <div class="card o-hidden border-0 shadow-lg my-5">
                     <div class="card-body p-0">
                         <!-- Nested Row within Card Body -->
                         <div class="row" ng-app="auth" ng-controller="auth">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Sistem Informasi Kepegawaian Dinas Pendidikan
-                                            Kabupaten Klungkung</h1>
+                                        <div>
+                                            <img style="width: 100px; height: 80px;"
+                                                src="/assets/foto/lambangdisdik.png">
+                                            <img style="width: 78px; height: 78px;"
+                                                src="/assets/foto/lambangklungkung.png">
+                                        </div>
+                                        <div>
+                                            <h1 class="h4 text-gray-900 mb-4">Sistem Informasi Kepegawaian Dinas
+                                                Pendidikan
+                                                Kabupaten Klungkung</h1>
+                                        </div>
                                     </div>
-                                    <form class="user" name="myForm" action="<?= base_url('/login') ?>" method="POST">
+                                    <form class="user" name="myForm" ng-submit="login()">
+                                        <div class="alert alert-danger alert-dismissable" ng-show="error">
+                                            <a href="#" class="close" data-dismiss="alert"
+                                                aria-label="close">&times;</a>{{message}}
+                                        </div>
                                         <div class="form-group">
                                             <input type="email" class="form-control form-control-user"
-                                                aria-describedby="emailHelp" placeholder="Username" name="email">
+                                                aria-describedby="emailHelp" placeholder="Username" name="email"
+                                                ng-model="email">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control form-control-user"
-                                                placeholder="Password" name="password">
+                                                placeholder="Password" name="password" ng-model="password">
                                         </div>
                                         <div class="row">
                                             <div class="col-6">
@@ -63,18 +47,10 @@
                                             </div>
                                             <div class="col-6">
                                                 <button type="submit" class="btn btn-primary btn-user btn-block"
-                                                    name="login">Login</button>
-
+                                                    name="login"><i class="fas fa-sign-in-alt"> Login</i></button>
                                             </div>
                                         </div>
                                     </form>
-                                    <hr>
-                                    <div class="text-center">
-                                        <a class="small" href="forgot-password.html">Forgot Password?</a>
-                                    </div>
-                                    <div class="text-center">
-                                        <a class="small" href="register.html">Create an Account!</a>
-                                    </div>
                                 </div>
                             </div>
                         </div>

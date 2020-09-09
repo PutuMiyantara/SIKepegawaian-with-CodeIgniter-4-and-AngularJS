@@ -77,14 +77,14 @@ $routes->get('/', 'basecontroller::default');
 // route since we don't have to scan directories.
 // LOGIN
 $routes->get('/login', 'Auth::index', ['namespace' => 'App\Controllers\Main']);
-$routes->post('/login', 'Auth::index', ['namespace' => 'App\Controllers\AJAX']);
+$routes->post('auth/login', 'Auth::index', ['namespace' => 'App\Controllers\AJAX']);
 $routes->get('/auth/logout', 'Auth::logout', ['namespace' => 'App\Controllers\AJAX']);
 
 // USERT MANAGEMENT
 
 // USER
-$routes->get('/user/admin', 'User::admin', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
-$routes->get('/user/pegawai', 'User::pegawai', ['namespace' => 'App\Controllers\Main', 'role' => [1, 2], 'ajax' => false]);
+$routes->get('/home/admin', 'User::admin', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
+$routes->get('/home/pegawai', 'User::pegawai', ['namespace' => 'App\Controllers\Main', 'role' => 1, 'ajax' => false]);
 $routes->get('/user', 'User::index', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
 $routes->get('/user/tambah', 'User::tambah', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
 $routes->get('/user/getUser', 'User::index', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
@@ -99,18 +99,33 @@ $routes->get('/pegawai/lastInsert', 'Pegawai::lastInsert', ['namespace' => 'App\
 $routes->post('/pegawai/deleteLastInsert', 'Pegawai::deleteLastInsert', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->get('/pegawai/getPegawai/(:num)', 'Pegawai::index/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->post('/pegawai/insertData', 'Pegawai::insertData', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
-// nanti hapis
 $routes->get('/pegawai/lastInsertRole', 'Pegawai::lastInsertRole', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 2, 3], 'ajax' => true]);
 $routes->get('/pegawai/getDetail/(:num)', 'Pegawai::getDetail/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 2, 3], 'ajax' => true]);
-$routes->post('/pegawai/updateData/(:num)/(:num)', 'Pegawai::updateData/$1/$2', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 2, 3], 'ajax' => true]);
+$routes->post('/pegawai/updateData/(:num)', 'Pegawai::updateData/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 2, 3], 'ajax' => true]);
 $routes->get('/pegawai/detailMutasi/(:num)', 'Pegawai::detailMutasi/$1', ['namespace' => 'App\Controllers\Main', 'role' => [1, 3], 'ajax' => false]);
 $routes->get('/pegawai/detailSKP/(:num)', 'Pegawai::detailSKP/$1', ['namespace' => 'App\Controllers\Main', 'role' => [1, 3], 'ajax' => false]);
+$routes->get('/pegawai/pensiun', 'Pegawai::pensiun', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => true]);
+$routes->get('/pegawai/getdataPensiun', 'Pegawai::getdataPensiun', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 
 // PANGKAT
+$routes->get('/pangkat', 'Pangkat::index', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
 $routes->get('/pangkat/getPangkat', 'Pangkat::index', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+$routes->get('/pangkat/getDataPangkat', 'Pangkat::getDataPangkat', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+$routes->get('/pangkat/tambah', 'Pangkat::tambah', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
+$routes->post('/pangkat/insertData', 'Pangkat::insertData', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->get('/pangkat/getDetailPangkat/(:num)', 'Pangkat::getDetailPangkat/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/pangkat/updateData/(:num)', 'Pangkat::updateData/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/pangkat/deletePangkat', 'Pangkat::deletePangkat/', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 
 // JABATAN
+$routes->get('/jabatan', 'Jabatan::index', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
+$routes->get('/jabatan/tambah', 'Jabatan::tambah', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
+$routes->post('/jabatan/insertData', 'Jabatan::insertData', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/jabatan/updateData/(:num)', 'Jabatan::updateData/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/jabatan/deleteJabatan', 'Jabatan::deleteJabatan', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->get('/jabatan/getJabatan', 'Jabatan::index', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+$routes->get('/jabatan/getDetailJabatan/(:num)', 'Jabatan::getDetailJabatan/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+
 
 // MUTASI
 $routes->get('/mutasi', 'Mutasi::index', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
@@ -132,6 +147,7 @@ $routes->post('/mutasi/updateSKMutasi/(:num)', 'Mutasi::updateSKMutasi/$1', ['na
 $routes->post('/mutasi/deleteSKMutasi', 'Mutasi::deleteSKMutasi', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->post('/mutasi/insertDataSKMutasi', 'Mutasi::insertDataSKMutasi', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->get('/mutasi/getRiwayatMutasi/(:num)', 'Mutasi::getRiwayatMutasi/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+$routes->get('/mutasi/toExel/(:num)', 'Mutasi::toExel/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
 
 // SKP
 $routes->get('/skp/getNameNipPeg', 'Skp::getNameNipPeg', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
@@ -139,22 +155,36 @@ $routes->get('/skp', 'Skp::index', ['namespace' => 'App\Controllers\Main', 'role
 $routes->get('/skp/getTahunSkp', 'Skp::index', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->get('/skp/getSkp/(:num)', 'Skp::getSkp/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
 $routes->get('/skp/tambah', 'Skp::tambah', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
-$routes->post('/skp/insertDataSkp', 'Skp::insertDataSkp', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+$routes->post('/skp/insertDataSkp/(:num)', 'Skp::insertDataSkp/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
 $routes->get('/skp/getDetail/(:num)', 'Skp::getDetail/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
 $routes->get('/skp/getRiwayatSKP/(:num)', 'Skp::getRiwayatSKP/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
 $routes->get('/skp/tambah/(:num)', 'Skp::tambah/$1', ['namespace' => 'App\Controllers\Main', 'role' => [1, 3], 'ajax' => true]);
 $routes->post('/skp/updateSkp/(:num)', 'Skp::updateSkp/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
 $routes->post('/skp/deleteSkp', 'Skp::deleteSkp', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+$routes->get('/skp/toExel/(:num)', 'Skp::toExel/$1', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+
 
 
 // PENSIUN
 // $routes->get('/pensiun/pensiunpegawai', 'Pensiun::insertData', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
-$routes->get('/pensiun/pensiunpegawai', 'Pesan::pesanPensiun', ['namespace' => 'App\Controllers\AJAX']);
+$routes->get('/pensiun/', 'Pegawai::pensiun', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
 
 //PESAN
-$routes->get('/pesan/SendNow', 'Pesan::SendNow', ['namespace' => 'App\Controllers\AJAX']);
-// $routes->get('/pesan/pesan', 'Pesan::sendEmail', ['namespace' => 'App\Controllers\AJAX']);
-$routes->get('/pesan/test', 'Pesan::test', ['namespace' => 'App\Controllers\AJAX']);
+$routes->get('/pesan', 'Pesan::index', ['namespace' => 'App\Controllers\Main', 'role' => 3, 'ajax' => false]);
+$routes->get('/pesan/getDataPesan', 'Pesan::getDataPesan', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/pesan/sendMessageMutasi', 'Pesan::pesanMutasi', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/pesan/reSend', 'Pesan::reSend', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->post('/pesan/deletePesan', 'Pesan::deletePesan', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->get('/pesan/pensiunpegawai', 'Pesan::pesanPensiun', ['namespace' => 'App\Controllers\AJAX', 'role' => [1, 3], 'ajax' => true]);
+
+//Dashboard
+$routes->get('/pegawai/getLengthPeg', 'Pegawai::getLengthPeg', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->get('/pegawai/getLengthPesan', 'Pegawai::getLengthPesan', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->get('/pegawai/getChartPensiun', 'Pegawai::getChartPensiun', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+$routes->get('/pegawai/getChartSkp', 'Pegawai::getChartSkp', ['namespace' => 'App\Controllers\AJAX', 'role' => 3, 'ajax' => true]);
+
+
+$routes->get('/autoSend', 'AutoSend::index', ['namespace' => 'App\Controllers\AJAX']);
 /**
  * --------------------------------------------------------------------
  * Additional Routing

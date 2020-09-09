@@ -1,4 +1,4 @@
-var sikepegawaian = angular.module("sikepegawaian", ["datatables"]);
+var sikepegawaian = angular.module("sikepegawaian", ["datatables", "chart.js"]);
 
 sikepegawaian.directive("fileInput", [
   "$parse",

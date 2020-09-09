@@ -37,8 +37,6 @@ class AuthFilter implements FilterInterface
                     "message" => "Unauthorized."
                 ]);
             }
-            // $b = $option['role'];
-
             return redirect()->to($option['role'] == 3 ? '/login' : '/login');
         }
     }
@@ -47,55 +45,3 @@ class AuthFilter implements FilterInterface
     {
     }
 }
-
-// $session = Services::session();
-// $router = Services::router();
-// $option = $router->getMatchedRouteOptions();
-// if (isset($option['role'])) {
-//     var_dump($session->has('email'), $session->get('role'), $option['role']);
-//     // die;
-//     if ($session->has('email') && $session->get('role') == $option['role']) {
-//         var_dump('berhasil 1');
-//         die;
-//         if (is_array($option['role'])) {
-//             var_dump('berhasil 2');
-//             if (in_array($session->get('role'), $option['role'])) {
-//                 var_dump('berhasil 3');
-//                 return true;
-//             }
-//         } elseif ($session->get('role') == $option['role']) {
-//             return true;
-//         }
-//     }
-//     if (isset($option['ajax']) && $option['ajax'] == true) {
-//         // return Response, error code 401
-//         return Services::response()->setStatusCode(401)->setJSON([
-//             "message" => "Unauthorized."
-//         ]);
-//     }
-//     // $b = $option['role'];
-
-//     return redirect()->to($option['role'] == 3 ? '/login/dddd' : '/login/cccc');
-// }
-
-
-
-
-// $session = Services::session();
-// // var_dump($request->uri->getPath());
-// // die;
-// if ($session->has('email')) {
-//     if ($request->uri->getPath() == 'login') {
-//         if ($session->get('role') == 3) {
-//             return redirect()->to(base_url('/user/admin'));
-//         } else if ($session->get('role') == 2) {
-//             return redirect()->to(base_url('/user/pegawai'));
-//         } else if ($session->get('role') == 1) {
-//             return redirect()->to(base_url('/user/pegawai'));
-//         }
-//     }
-// } else {
-//     if ($request->uri->getPath() != 'login') {
-//         return redirect()->to(base_url('/login'));
-//     }
-// }

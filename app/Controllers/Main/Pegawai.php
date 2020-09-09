@@ -30,4 +30,9 @@ class Pegawai extends BaseController
     {
         parent::masterView('pegawai/detailSKP', []);
     }
+
+    public function pensiun()
+    {
+        parent::masterView('pegawai/pensiun', []);
+    }
 }

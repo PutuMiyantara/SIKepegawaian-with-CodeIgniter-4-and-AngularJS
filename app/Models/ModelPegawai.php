@@ -6,19 +6,6 @@ use CodeIgniter\Model;
 
 class ModelPegawai extends Model
 {
-    // dengan offset
-    // public function getPegawais($limit = 10, $offset = 0)
-    // {
-    //     $db = db_connect();
-    //     $builder = $db->table('tb_pegawai');
-    //     $builder = $db->table('tb_user');
-    //     $builder->select('*');
-    //     $builder->join('tb_pegawai', 'tb_pegawai.id_pegawai = tb_user.id_user');
-    //     $query = $builder->get($limit, $offset);
-
-    //     return $query->getResult();
-    // }
-
     public function getPegawais()
     {
         $db = db_connect();
@@ -36,6 +23,8 @@ class ModelPegawai extends Model
         $builder = $db->table('tb_pegawai');
         $builder->select('*');
         $builder->join('tb_user', 'tb_user.id_user = tb_pegawai.id_pegawai');
+        $builder->join('tb_pangkat', 'tb_pangkat.id_pangkat = tb_pegawai.id_pangkat');
+        $builder->join('tb_jabatan', 'tb_jabatan.id_jabatan = tb_pegawai.id_jabatan');
         $query = $builder->getWhere($where);
 
         return $query->getResult();
@@ -55,5 +44,16 @@ class ModelPegawai extends Model
         $builder = $db->table('tb_pegawai');
         $builder->where($where);
         $builder->update($data);
+    }
+
+    public function getTahunPensiun()
+    {
+        $db = db_connect();
+        $builder = $db->table('tb_pegawai');
+        $builder->select('tgl_pensiun');
+        $builder->distinct();
+        $builder->orderBy('tgl_pensiun', 'ASC');
+        $query = $builder->get();
+        return $query->getResult();
     }
 }

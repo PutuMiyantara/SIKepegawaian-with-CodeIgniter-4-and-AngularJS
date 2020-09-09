@@ -9,38 +9,39 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="p-5">
-                        <form class="user" name="myForm" id="myForm" ng-submit="insertDataMutasi()">
+                        <form class="user" name="formMutasi" id="formDetailMutasi" ng-submit="insertDataMutasi()">
                             <div class="alert alert-danger alert-dismissable" ng-show="error">
-                                <a href="#" class="close" data-dismiss="alert"
-                                    aria-label="close">&times;</a>{{errorMessage}}
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
                             </div>
                             <div class="form-group">
                                 <label>No SK</label><br>
                                 <small style="color: red;"
-                                    ng-show="myForm.no_sk.$touched && myForm.no_sk.$error.required">Data
-                                    NIP Kosong</small>
+                                    ng-show="formMutasi.no_sk.$touched && formMutasi.no_sk.$error.required">No SK Mutasi
+                                    Kosong</small>
                                 <input type="text" ng-required="true" class="form-control" name="no_sk" ng-model="no_sk"
-                                    ng-style="myForm.no_sk.$dirty && myForm.no_sk.$invalid && {'border':'solid red'}"
+                                    ng-style="formMutasi.no_sk.$dirty && formMutasi.no_sk.$required && {'border':'solid red'}"
                                     ng-readonly="no_SkReadOnly" ng-keyup="skChange(no_sk)">
+                                <ul class="list-group" ng-hide="hidesk" style="height: 100px;overflow: auto;">
+                                    <li class="list-group-item list-group-item-action" ng-repeat="skdata in filterSk"
+                                        ng-click="fillTextBoxSKMutasi(skdata.id_mutasi,skdata.no_sk, skdata.tgl_mutasi)"
+                                        style="position: static;"><a href=""
+                                            style="color: black; text-align: right; text-decoration: none;">{{skdata.no_sk}}</a>
+                                    </li>
+                                </ul>
                             </div>
                             <div class="form-group">
                                 <label>Tanggal Mutasi</label><br>
-                                <small style="color: red;"
-                                    ng-show="myForm.tgl_mutasi.$touched && myForm.tgl_mutasi.$error.required">Data
-                                    NIP Kosong</small>
                                 <input type="date" class="form-control" name="tgl_mutasi" ng-model="tgl_mutasi"
-                                    ng-required="true"
-                                    ng-style="myForm.tgl_mutasi.$dirty && myForm.tgl_mutasi.$invalid && {'border':'solid red'}"
-                                    ng-readonly="true">
+                                    ng-required="true" ng-readonly="true">
                             </div>
                             <div class="form-group">
                                 <label>NIP Pegawai</label><br>
                                 <small style="color: red;">{{pegawaiUnique}}</small>
                                 <small style="color: red;"
-                                    ng-show="myForm.nip.$dirty && myForm.nip.$error.pattern">Masukan
+                                    ng-show="formMutasi.nip.$dirty && formMutasi.nip.$error.pattern">Masukan
                                     Angka</small>
                                 <small style="color: red;"
-                                    ng-show="myForm.nip.$touched && myForm.nip.$error.required">Data
+                                    ng-show="formMutasi.nip.$touched && formMutasi.nip.$error.required">Data
                                     NIP Kosong</small>
                                 <small style="color: red;">{{notfoundnip}}</small>
                                 <input type="text" class="form-control" name="nip" ng-model="nip" ng-required="true"
@@ -48,7 +49,7 @@
                                     ng-readonly="nipnamaReadonly">
                                 <ul class="list-group" ng-hide="hidenip" style="height:100px; overflow: auto;">
                                     <li class="list-group-item list-group-item-action" ng-repeat="nipdata in filterNip"
-                                        ng-click="fillTextBox(nipdata.nip, nipdata.id_pegawai, nipdata.nama)"
+                                        ng-click="fillTextBox(nipdata.nip, nipdata.id_pegawai, nipdata.nama, nipdata.tempat_bekerja)"
                                         style="position: static;">
                                         <a href=""
                                             style="color: black; text-align: right; text-decoration: none;">{{nipdata.nip}}</a>
@@ -64,45 +65,55 @@
                                 <ul class="list-group" ng-hide="hidenama" style="height: 100px;overflow: auto;">
                                     <li class="list-group-item list-group-item-action"
                                         ng-repeat="namadata in filterNama"
-                                        ng-click="fillTextBox(namadata.nip, namadata.id_pegawai, namadata.nama)">
+                                        ng-click="fillTextBox(namadata.nip, namadata.id_pegawai, namadata.nama, namadata.tempat_bekerja)">
                                         <a href=""
                                             style="color: black; text-align: right; text-decoration: none;">{{namadata.nama}}</a>
                                     </li>
                                 </ul>
                             </div>
                             <div class="form-group">
+                                <label>Unit Asal</label><br>
+                                <small style="color: red;"
+                                    ng-show="formMutasi.unit_asal.$touched && formMutasi.unit_asal.$error.required">Data
+                                    Masih
+                                    Kosong</small>
+                                <input type="text" class="form-control" name="unit_asal" ng-model="unit_asal"
+                                    ng-required="true" ng-readonly="true"
+                                    ng-style="formMutasi.unit_asal.$dirty && formMutasi.unit_asal.$invalid && {'border':'solid red'}">
+                            </div>
+                            <div class="form-group">
                                 <label>Unit Tujuan</label><br>
                                 <small style="color: red;"
-                                    ng-show="myForm.unit_tujuan.$touched && myForm.unit_tujuan.$error.required">Data
+                                    ng-show="formMutasi.unit_tujuan.$touched && formMutasi.unit_tujuan.$error.required">Data
                                     Masih
                                     Kosong</small>
                                 <input type="text" class="form-control" name="unit_tujuan" ng-model="unit_tujuan"
                                     ng-required="true"
-                                    ng-style="myForm.unit_tujuan.$dirty && myForm.unit_tujuan.$invalid && {'border':'solid red'}">
+                                    ng-style="formMutasi.unit_tujuan.$dirty && formMutasi.unit_tujuan.$invalid && {'border':'solid red'}">
                             </div>
                             <div class="form-group" ng-init="option()">
                                 <label>Status Mutasi</label><br>
                                 <small style="color: red;"
-                                    ng-show="myForm.status_mutasi.$touched && myForm.status_mutasi.$invalid">Data
+                                    ng-show="formMutasi.status_mutasi.$touched && formMutasi.status_mutasi.$invalid">Data
                                     Masih
                                     Kosong</small>
                                 <select class="form-control" name="status_mutasi"
                                     ng-options="s.value as s.text for s in statusMutasi" ng-model="status_mutasi"
                                     ng-required="true"></select>
                             </div>
-                            <input type="text" name="idpegawai" ng-model="id_pegawai" ng-hide="false"><br>
-                            <input type="text" name="id_mutasi" ng-model="id_mutasi" ng-hide="false">
                             <div class="row">
                                 <div class="col-xl-6 col-lg-12"></div>
                                 <div class="col-xl-6 col-lg-12">
                                     <div class="row">
                                         <div class="col-6">
+                                            <input type="text" name="idpegawai" ng-model="id_pegawai" ng-hide="true">
+                                            <input type="text" name="id_mutasi" ng-model="id_mutasi" ng-hide="true">
                                             <button type="button" class="btn btn-danger btn-block"
                                                 ng-click="bckTo()">Kembali</button>
                                         </div>
                                         <div class="col-6">
-                                            <button type="submit" name="btnInsert"
-                                                class="btn btn-success btn-block">Simpan</button>
+                                            <button type="submit" name="btnInsert" class="btn btn-success btn-block"><i
+                                                    class="fas fa-save"> Simpan</i></button>
                                         </div>
                                     </div>
                                 </div>

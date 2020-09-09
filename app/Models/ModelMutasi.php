@@ -28,7 +28,7 @@ class ModelMutasi extends Model
     {
         $db = db_connect();
         $builder = $db->table('mutasi_pegawai');
-        $builder->select('id_mutasi_pegawai, mutasi_pegawai.id_mutasi, no_sk, tgl_mutasi, unit_tujuan, status_mutasi, tb_pegawai.id_pegawai, nip, tb_user.nama');
+        $builder->select('id_mutasi_pegawai, mutasi_pegawai.id_mutasi, no_sk, tgl_mutasi, unit_asal, unit_tujuan, status_mutasi, tb_pegawai.id_pegawai, nip, tb_user.nama, tb_user.status, tb_user.role');
         $builder->join('tb_mutasi', 'mutasi_pegawai.id_mutasi = tb_mutasi.id_mutasi');
         $builder->join('tb_pegawai', 'tb_pegawai.id_pegawai = mutasi_pegawai.id_pegawai');
         $builder->join('tb_user', 'tb_pegawai.id_pegawai = tb_user.id_user');
@@ -58,7 +58,7 @@ class ModelMutasi extends Model
     {
         $db = db_connect();
         $builder = $db->table('mutasi_pegawai');
-        $builder->select('id_mutasi_pegawai, mutasi_pegawai.id_mutasi, no_sk, tgl_mutasi, unit_tujuan, status_mutasi, tb_pegawai.id_pegawai, nip, tb_user.nama');
+        $builder->select('id_mutasi_pegawai, mutasi_pegawai.id_mutasi, no_sk, tgl_mutasi, unit_asal, unit_tujuan, status_mutasi, tb_pegawai.id_pegawai, nip, tb_user.nama');
         $builder->join('tb_mutasi', 'tb_mutasi.id_mutasi = mutasi_pegawai.id_mutasi');
         $builder->join('tb_pegawai', 'tb_pegawai.id_pegawai = mutasi_pegawai.id_pegawai');
         $builder->join('tb_user', 'tb_pegawai.id_pegawai = tb_user.id_user');

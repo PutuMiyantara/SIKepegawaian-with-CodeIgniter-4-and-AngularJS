@@ -18,27 +18,35 @@
                                     Data</a></button>
                         </div>
                     </div>
+                    <div class="alert alert-danger alert-dismissable" ng-show="errorDell">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
+                    </div>
+                    <div class="alert alert-success alert-dismissable" ng-show="successDell">
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
+                    </div>
                     <table datatable="ng" dt-options="vm.dtOptions" class="table table-bordered table-hover"
                         width="100%" cellspacing="0">
                         <thead>
                             <tr style="text-align: center;">
                                 <th rowspan="2">No</th>
                                 <th rowspan="2">Nama Pangkat</th>
-                                <th rowspan="2">Gaji</th>
+                                <th rowspan="2">Golongan</th>
+                                <th rowspan="2">Ruang</th>
                                 <th colspan="2">Action</th>
                             </tr>
                             <tr style="text-align: center;">
                                 <th>Detail</th>
-                                <th>Delete</th>
+                                <th>Hapus</th>
                             </tr>
                         </thead>
                         <tfoot>
                             <tr style="text-align: center;">
                                 <th rowspan="2">No</th>
                                 <th rowspan="2">Nama Pangkat</th>
-                                <th rowspan="2">Gaji</th>
+                                <th rowspan="2">Golongan</th>
+                                <th rowspan="2">Ruang</th>
                                 <th>Detail</th>
-                                <th>Delete</th>
+                                <th>Hapus</th>
                             </tr>
                             <tr style="text-align: center;">
                                 <th colspan="2">Action</th>
@@ -48,15 +56,17 @@
                             <tr ng-repeat="d in datas">
                                 <td>{{ $index +1 }}</td>
                                 <td>{{ d.nama_pangkat }}</td>
-                                <td>{{ "Rp. " + (d.gaji |number)}}</td>
+                                <td>{{ d.golongan }}</td>
+                                <td>{{ d.ruang }}</td>
                                 </td>
                                 <td style="width: 100px; padding: auto">
-                                    <button type="button" class="btn btn-info"
-                                        ng-click="getDetail(d.id_pangkat)">Detail</button>
+                                    <button type="button" class="btn btn-info" ng-click="getDetail(d.id_pangkat)"><i
+                                            class="fas fa-edit">Detail</i></button>
                                 </td>
                                 <td style="width: 100px; padding: auto">
                                     <button type="button" class="btn btn-danger"
-                                        ng-click="deletePangkat(d.id_pangkat)">Delete</button>
+                                        ng-click="deletePangkat(d.id_pangkat)"><i class="fas fa-trash-alt">
+                                            Hapus</i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -68,7 +78,7 @@
         <div class="modal fade" tabindex="1" role="dialog" id="detailPangkat">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form method="POST" name="myForm" ng-submit="editData()">
+                    <form method="POST" name="formPangkat" id="formDetailPangkat" ng-submit="editData()">
                         <div class="modal-header">
                             <h4 class="modal-title" ng-model="modalTitle">{{modalTitle}}</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -76,38 +86,44 @@
                         </div>
                         <div class="modal-body">
                             <div class="alert alert-danger alert-dismissable" ng-show="error">
-                                <a href="#" class="close" data-dismiss="alert"
-                                    aria-label="close">&times;</a>{{errorMessage}}
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
+                            </div>
+                            <div class="alert alert-success alert-dismissable" ng-show="success">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>{{message}}
                             </div>
                             <div class="form-group">
                                 <label>Nama Pangkat</label><br>
                                 <small style="color: red;"
-                                    ng-show="myForm.namaPangkat.$touched && myForm.namaPangkat.$error.required">Data
+                                    ng-show="formPangkat.namaPangkat.$touched && formPangkat.namaPangkat.$error.required">Data
                                     Masih Kosong</small>
                                 <input type="text" class="form-control" name="namaPangkat" ng-model="namaPangkat"
                                     ng-required="true"
-                                    ng-style="myForm.namaPangkat.$dirty && myForm.namaPangkat.$invalid && {'border':'solid red'}"
-                                    ng-readonly="readOnly">
+                                    ng-style="formPangkat.namaPangkat.$dirty && formPangkat.namaPangkat.$invalid && {'border':'solid red'}">
                             </div>
                             <div class="form-group">
-                                <label>Gaji</label><br>
+                                <label>Golongan</label><br>
                                 <small style="color: red;"
-                                    ng-show="myForm.gaji.$touched && myForm.gaji.$error.required">Data
+                                    ng-show="formPangkat.golongan.$touched && formPangkat.golongan.$error.required">Data
                                     Masih Kosong</small>
-                                <input type="text" class="form-control" name="gaji" ng-model="gaji" ng-required="true"
-                                    ng-style="myForm.gaji.$dirty && myForm.gaji.$invalid && {'border':'solid red'}"
-                                    ng-readonly="readOnly" ng-change="priceFormat(gaji, 'Rp.')">
+                                <input type="text" class="form-control" name="golongan" ng-model="golongan"
+                                    ng-required="false"
+                                    ng-style="formPangkat.golongan.$dirty && formPangkat.golongan.$invalid && {'border':'solid red'}">
                             </div>
-                            <p>id_pangkat</p>
-                            <input type="text" name="id_pangkat" ng-model="id_pangkat" ng-hide="false">
+                            <div class="form-group">
+                                <label>Ruang</label><br>
+                                <small style="color: red;"
+                                    ng-show="formPangkat.ruang.$touched && formPangkat.ruang.$error.required">Data
+                                    Masih Kosong</small>
+                                <input type="text" class="form-control" name="ruang" ng-model="ruang"
+                                    ng-required="false"
+                                    ng-style="formPangkat.ruang.$dirty && formPangkat.ruang.$invalid && {'border':'solid red'}">
+                            </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="{{typeButton}}" class="btn btn-info col-sm-3 mb-6"
-                                ng-click="actionDetail()">{{submitButton}}</button>
+                            <input type="text" name="id_pangkat" ng-model="id_pangkat" ng-hide="true">
+                            <button type="submit" class="btn btn-info col-sm-3 mb-6">Update</button>
                             <button type="button" class="btn btn-danger col-sm-3 mb-6"
-                                ng-click="deleteJabatan(id_pangkat)" ng-show="deletejabatan">Hapus</button>
-                            <button type="button" class="btn btn-danger col-sm-3 mb-6"
-                                ng-click="actionbtn(id_pangkat)">{{actionButton}}</button>
+                                ng-click="closeModal('#detailPangkat')">Kembali</button>
                         </div>
                     </form>
                 </div>

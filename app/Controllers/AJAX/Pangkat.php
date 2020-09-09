@@ -10,49 +10,70 @@ class Pangkat extends BaseController
     public function index()
     {
         $mpangkat = new ModelPangkat();
+        $data = $mpangkat->getPangkat();
+        $output = [];
+        foreach ($data as $key) {
+            $idPangkat = $key->id_pangkat;
+            $dataPangkat = $key->nama_pangkat . ' ' . $key->golongan . ' ' . $key->ruang;
+            $output[] = array('id_pangkat' => $idPangkat, 'nama_pangkat' => $dataPangkat);
+        }
+        echo json_encode($output);
+    }
+
+    public function getDataPangkat()
+    {
+        $mpangkat = new ModelPangkat();
         echo json_encode($mpangkat->getPangkat());
     }
 
     public function insertData()
     {
         $model = new ModelPangkat();
-        $data = json_decode(file_get_contents("php://input"));
-        $namaPangkat = $data->nama_pangkat;
-        $gaji = $data->gaji;
-        $data = array(
-            'nama_pangkat' => $namaPangkat,
-            'gaji' => $gaji
-        );
-        $model->insertData($data);
+        $dataJSON = $this->request->getJSON(true);
+        $errortext[] = '';
+        $message = '';
+        $dataJSON = $this->request->getJSON(true);
+        if ($this->validator->run($dataJSON, 'pangkat')) {
+            $model->insertData($dataJSON);
+            $message = "Berhasil Menyimpan Data";
+        } else {
+            $errortext[] = implode(', ', $this->validator->getErrors());
+        }
+        $validationtext = implode('', $errortext);
+        $output = array('errortext' => $validationtext, 'message' => $message);
+        echo json_encode($output);
     }
 
     public function deletePangkat()
     {
         $model = new ModelPangkat();
-        $data = json_decode(file_get_contents("php://input"));
-        $id_pangkat = $data->id_pangkat;
-        $where = array('id_pangkat' => $id_pangkat);
+        $where = $this->request->getJSON(true);
         $model->deletePangkat($where);
     }
 
-    public function detailPangkat()
+    public function getDetailPangkat($where)
     {
         $model = new ModelPangkat();
-        $data = json_decode(file_get_contents("php://input"));
-        $id_pangkat = $data->id_pangkat;
-        $where = array('id_pangkat' => $id_pangkat);
+        $where = array('id_pangkat' => $where);
         echo json_encode($model->detailPangkat($where));
     }
 
-    public function editData()
+    public function updateData($where)
     {
         $model = new ModelPangkat();
-        $data = json_decode(file_get_contents("php://input"));
-        $idPangkat = $data->id_pangkat;
-        $namaPangkat = $data->nama_pangkat;
-        $gaji = $data->gaji;
-        $where = array('id_pangkat' => $idPangkat);
-        $data = array('nama_pangkat' => $namaPangkat, 'gaji' => $gaji);
-        $model->editData($where, $data);
+        $dataJSON = $this->request->getJSON(true);
+        $errortext[] = '';
+        $message = '';
+        $dataJSON = $this->request->getJSON(true);
+        if ($this->validator->run($dataJSON, 'pangkat')) {
+            $where = array('id_pangkat' => $where);
+            $model->editData($where, $dataJSON);
+            $message = "Berhasil Mengubah Data";
+        } else {
+            $errortext[] = implode(', ', $this->validator->getErrors());
+        }
+        $validationtext = implode('', $errortext);
+        $output = array('errortext' => $validationtext, 'message' => $message);
+        echo json_encode($output);
     }
 }

@@ -25,6 +25,7 @@ class ModelSKp extends Model
         $builder = $db->table('tb_skp');
         $builder->select('*');
         $builder->join('tb_pegawai', 'tb_pegawai.id_pegawai = tb_skp.id_pegawai');
+        $builder->join('tb_jabatan', 'tb_jabatan.id_jabatan = tb_pegawai.id_jabatan');
         $builder->join('tb_user', 'tb_user.id_user = tb_skp.id_pegawai');
         // $builder->join('tb_user', 'tb_user.id_user = tb_pegawai.id_pegawai'); memastikan pns atau tidak
         // $builder->where(['role' => '1']); memastikan pns atau tidak
@@ -34,12 +35,12 @@ class ModelSKp extends Model
         return $query->getResult();
     }
 
-    public function getSkp($idskp)
+    public function getSkp($where)
     {
         $db = db_connect();
         $builder = $db->table('tb_skp');
         $builder->select('*');
-        $query = $builder->getWhere($idskp);
+        $query = $builder->getWhere($where);
         return $query->getResult();
     }
 

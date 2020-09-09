@@ -15,42 +15,52 @@ class Jabatan extends BaseController
         echo json_encode($model->getJabatan());
     }
 
-    public function getDetailJabatan()
+    public function getDetailJabatan($where)
     {
         $model = new ModelJabatan();
-        $data = json_decode(file_get_contents("php://input"));
-        $id_jabatan = $data->id_jabatan;
-        $id_jabatan = array('id_jabatan' => $id_jabatan);
+        $id_jabatan = array('id_jabatan' => $where);
         echo json_encode($model->getDetailJabatan($id_jabatan));
     }
 
     public function deleteJabatan()
     {
         $model = new ModelJabatan();
-        $data = json_decode(file_get_contents("php://input"));
-        $id_jabatan = $data->id_jabatan;
-        $id_jabatan = array('id_jabatan' => $id_jabatan);
-        $model->deleteJabatan($id_jabatan);
+        $dataJSON = $this->request->getJSON(true);
+        $model->deleteJabatan($dataJSON);
     }
 
-    public function editData()
+    public function updateData($where)
     {
         $model = new ModelJabatan();
-        $data = json_decode(file_get_contents("php://input"));
-        $id_jabatan = $data->id_jabatan;
-        $nama_jabatan = $data->nama_jabatan;
-        $where = array('id_jabatan' => $id_jabatan);
-        $data = array('nama_jabatan' => $nama_jabatan);
-
-        $model->editData($where, $data);
+        $dataJSON = $this->request->getJSON(true);
+        $errortext[] = '';
+        $message = '';
+        if ($this->validator->run($dataJSON, 'jabatan')) {
+            $where = array('id_jabatan' => $where);
+            $model->editData($where, $dataJSON);
+            $message = "Berhasil Menghubah Data";
+        } else {
+            $errortext[] = implode(', ', $this->validator->getErrors());
+        }
+        $validationtext = implode('', $errortext);
+        $output = array('errortext' => $validationtext, 'message' => $message);
+        echo json_encode($output);
     }
 
     public function insertData()
     {
         $model = new ModelJabatan();
-        $data = json_decode(file_get_contents("php://input"));
-        $nama_jabatan = $data->nama_jabatan;
-        $data = array('nama_jabatan' => $nama_jabatan);
-        $model->insertData($data);
+        $dataJSON = $this->request->getJSON(true);
+        $errortext[] = '';
+        $message = '';
+        if ($this->validator->run($dataJSON, 'jabatan')) {
+            $model->insertData($dataJSON);
+            $message = "Berhasil Menyimpan Data";
+        } else {
+            $errortext[] = implode(', ', $this->validator->getErrors());
+        }
+        $validationtext = implode('', $errortext);
+        $output = array('errortext' => $validationtext, 'message' => $message);
+        echo json_encode($output);
     }
 }

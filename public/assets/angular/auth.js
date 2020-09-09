@@ -1,28 +1,40 @@
-sikepegawaian.controller("auth", function ($scope, $http, $window) {
+sikepegawaian.controller("auth", function ($scope, $http, $window, $timeout) {
   $scope.login = function () {
-    var fd = new FormData();
-    fd.append("email", $scope.email);
-    fd.append("password", $scope.password);
+    $scope.pesan();
     $http
-      .post("/login", fd, {
-        transformRequest: angular.identity,
-        headers: { "Content-Type": undefined, "Process-Data": true },
+      .post("/auth/login", {
+        email: $scope.email,
+        password: $scope.password,
       })
       .then(
         function successCallback(data) {
-          console.log(data);
-          // if (data.data.errortext == "") {
-          //   if (data.data.message != "") {
-          //     $window.location.href = "/user/admin";
-          //   }
-          // } else {
-          //   $scope.error = true;
-          //   $scope.errorMessage = data.data.errortext;
-          // }
+          if (data.data.dataLogin != "") {
+            $scope.message = data.data.dataLogin;
+            $scope.error = true;
+          } else {
+            if (data.data.checkUser == "admin") {
+              $window.location.href = "/home/admin";
+            } else if (data.data.checkUser == "pegawai") {
+              $window.location.href = "/home/pegawai";
+            }
+          }
         },
         function errorCallback(response) {
-          console.log("Gagal", response);
+          $scope.message = "Gagal Melakukan Login";
+          $scope.error = true;
+          console.log(response);
         }
       );
+  };
+
+  $scope.pesan = function () {
+    $http.get("/pesan/pensiunpegawai").then(
+      function successCallback(data) {
+        console.log(data);
+      },
+      function errorCallback(response) {
+        console.log(response);
+      }
+    );
   };
 });

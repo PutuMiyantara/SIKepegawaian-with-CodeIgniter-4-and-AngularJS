@@ -1,8 +1,8 @@
-sikepegawaian.controller("user", function ($scope, $http, $window) {
+sikepegawaian.controller("user", function ($scope, $http, $window, $timeout) {
   $scope.getUser = function () {
     $http.get("/user/getUser").then(function (data) {
       $scope.datas = data.data;
-      console.log(data);
+      // console.log(data);
     });
   };
 
@@ -65,18 +65,14 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
   };
 
   $scope.insertData = function () {
-    console.log("dadada");
+    $scope.error = $scope.success = false;
     var fd = new FormData();
     angular.forEach($scope.files, function (file) {
       fd.append("foto", file);
     });
-
     fd.append("email", $scope.email);
     fd.append("password", $scope.password);
     fd.append("repass", $scope.repass);
-    fd.append("role", $scope.role);
-    fd.append("status", "1");
-    fd.append("nama", $scope.nama);
     $http
       .post("/user/insertData", fd, {
         transformRequest: angular.identity,
@@ -84,38 +80,39 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
       })
       .then(
         function successCallback(data) {
-          console.log(data);
+          console.log("insert data", data);
           if (data.data.errortext == "") {
-            if (data.data.errorfoto == "") {
-              alert(data.data.message);
-              $scope.errorMessage = null;
-              $scope.myForm.$setUntouched();
-              $scope.myForm.$setPristine();
-              $scope.error = false;
-              document.getElementById("myForm").reset();
-              $window.location.href = "/pegawai/tambah";
-            } else {
-              $scope.error = true;
-              $scope.errorMessage = data.data.errorfoto;
-            }
+            $scope.fomUser.$setUntouched();
+            $scope.fomUser.$setPristine();
+            document.getElementById("formTambahUser").reset();
+            $window.location.href = "/pegawai/tambah";
+            $scope.error = false;
+            $scope.message = data.data.errortext;
           } else {
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
+            $scope.message = data.data.errortext;
           }
         },
         function errorCallback(response) {
-          console.log("Gagal", response);
+          console.log("insert data", response);
+          $scope.message = "Gagal Menyimpan Data";
         }
       );
   };
 
+  $scope.setDefault = function () {
+    $scope.formUser.$setUntouched();
+    $scope.formUser.$setPristine();
+    $scope.email = $scope.password = $scope.repass = $scope.srepass = $scope.spassword = $scope.msg = null;
+    $scope.error = $scope.success = false;
+  };
+
   $scope.getDetail = function (id) {
-    console.log(id);
-    $scope.actionbtn();
+    $scope.setDefault();
     $http.get("/user/getDetail/" + id).then(
       function successCallback(data) {
-        console.log(data);
-        $scope.openModal("#detailEdit");
+        // console.log(data);
+        $scope.openModal("#detailEditUser");
         $scope.modalTitle = "Detail User";
         $scope.submitButton = "Update";
         $scope.actionButton = "Kembali";
@@ -139,11 +136,9 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
   };
 
   $scope.getdetailuserHeader = function (id) {
-    console.log(id);
-    $scope.actionbtn();
+    $scope.setDefault();
     $http.get("/user/getDetail/" + id).then(
       function successCallback(data) {
-        console.log(data);
         $scope.openModal("#detailuserHeader");
         $scope.modalTitle = "Detail User";
         $scope.submitButton = "Update";
@@ -168,6 +163,7 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
   };
 
   $scope.getNamaHeader = function (id) {
+    $scope.setDefault();
     console.log(id);
     $http.get("/user/getDetail/" + id).then(
       function successCallback(data) {
@@ -187,6 +183,7 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
   };
 
   $scope.editData = function () {
+    $scope.error = $scope.success = false;
     var fd = new FormData();
     angular.forEach($scope.files, function (file) {
       fd.append("foto", file);
@@ -204,43 +201,38 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
       })
       .then(
         function successCallback(data) {
-          console.log("edit data", data.data);
+          console.log("edit data", data);
           if (data.data.errortext == "") {
-            if (data.data.errorfoto == "") {
-              $scope.getDetail($scope.iduser);
-            } else {
-              $scope.error = true;
-              $scope.errorMessage = data.data.errorfoto;
-            }
-            // $scope.getDetail($scope.iduser);
+            $scope.getDetail($scope.iduser);
+            $scope.success = true;
+            $timeout(function () {
+              $scope.success = false;
+            }, 5000);
+            $scope.message = data.data.message;
             $scope.getUser();
-            alert(data.data.message);
           } else {
-            alert("Gagal Mengubah Data");
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
+            $scope.message = data.data.errortext;
           }
         },
         function errorCallback(response) {
-          $scope.submitButton = "Simpan";
-          $scope.actionButton = "Batal";
           $scope.readOnly = false;
           $scope.hide = false;
-          $scope.modalTitle = "Edit User";
-          $scope.typeButton = "submit";
           console.log("gagalfoto", response);
-          alert("Gagal Mengubah Data");
+          $scope.error = true;
+          $scope.message = "Gagal Mengubah Data";
         }
       );
   };
 
   $scope.edituserHeader = function () {
+    $scope.error = $scope.success = false;
     var fd = new FormData();
     angular.forEach($scope.files, function (file) {
       fd.append("foto", file);
     });
     fd.append("email", $scope.email);
-    fd.append("status", $scope.status);
+    fd.append("status", "1");
     fd.append("fileLama", $scope.foto);
     fd.append("role", $scope.role);
     fd.append("password", $scope.password);
@@ -254,37 +246,24 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
         function successCallback(data) {
           console.log("edit data", data.data);
           if (data.data.errortext == "") {
-            if (data.data.errorfoto == "") {
-              $scope.getDetail($scope.iduser);
-            } else {
-              $scope.error = true;
-              $scope.errorMessage = data.data.errorfoto;
-            }
+            $scope.getDetail($scope.iduser);
+            $scope.message = data.data.message;
+            $scope.success = true;
+            $timeout(function () {
+              $scope.success = false;
+            }, 5000);
             // $scope.getDetail($scope.iduser);
-            alert(data.data.message);
           } else {
-            alert("Gagal Mengubah Data");
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
+            $scope.message = data.data.errortext;
           }
         },
         function errorCallback(response) {
-          $scope.submitButton = "Simpan";
-          $scope.actionButton = "Batal";
-          $scope.readOnly = false;
-          $scope.hide = false;
-          $scope.modalTitle = "Edit User";
-          $scope.typeButton = "submit";
-          console.log("gagalfoto", response);
-          alert("Gagal Mengubah Data");
+          console.log("error user", response);
+          $scope.error = true;
+          $scope.message = "Gagal Mengubah Data";
         }
       );
-  };
-
-  $scope.actionbtn = function () {
-    $scope.myForm.$setUntouched();
-    $scope.myForm.$setPristine();
-    $scope.email = $scope.password = $scope.repass = null;
   };
 
   $scope.openModal = function (id) {
@@ -292,7 +271,7 @@ sikepegawaian.controller("user", function ($scope, $http, $window) {
     modal_popup.modal("show");
   };
 
-  $scope.closeModal = function () {
+  $scope.closeModal = function (id) {
     var modal_popup = angular.element(id);
     modal_popup.modal("hide");
   };

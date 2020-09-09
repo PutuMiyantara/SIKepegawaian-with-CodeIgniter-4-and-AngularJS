@@ -1,4 +1,4 @@
-sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
+sikepegawaian.controller("mutasi", function ($window, $scope, $http, $timeout) {
   $scope.getSKMutasi = function () {
     $http.get("/mutasi/getSKMutasi").then(function (data) {
       $scope.skmutasi = data.data;
@@ -8,6 +8,15 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
 
   $scope.toMutasi = function (id) {
     $window.location.href = "/mutasi/" + id;
+  };
+
+  $scope.addRiwayatMutasi = function () {
+    var id = $window.location.href;
+    var res = id.split("/");
+    var id_pegawai = res[5];
+    console.log(id_pegawai);
+    $window.location.href =
+      "/mutasi/tambahMutasi/" + id_pegawai + "/" + "pegawai";
   };
 
   $scope.getDetail = function () {
@@ -23,7 +32,6 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
         console.log(response);
       }
     );
-
     $http.get("/mutasi/getDetailSKMutasi/" + $scope.id_mutasi).then(
       function successCallback(data) {
         $scope.no_skLabel = data.data[0].no_sk;
@@ -33,74 +41,6 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
       }
     );
   };
-
-  // $scope.getDetail = function () {
-  //   var idd = window.location.href;
-  //   var res = idd.split("/");
-  //   $scope.id_mutasi = res[5];
-  //   if ($scope.id_mutasi != null) {
-  //   }
-  //   $http
-  //     .post("/ajax/mutasi/getDetailSKMutasi", {
-  //       id_mutasi: $scope.id_mutasi,
-  //     })
-  //     .then(
-  //       function successCallback(data) {
-  //         $scope.namaSK = data.data[0].no_sk;
-  //       },
-  //       function errorCallback(response) {
-  //         console.log(response);
-  //       }
-  //     );
-  //   $http
-  //     .post("/ajax/mutasi/getDataMutasi", {
-  //       id_mutasi: $scope.id_mutasi,
-  //     })
-  //     .then(
-  //       function successCallback(data) {
-  //         $scope.datas = data.data;
-  //         console.log(data.data[0].no_sk);
-  //         $scope.no_skLabel = data.data[0].no_sk;
-  //       },
-  //       function errorCallback(response) {
-  //         console.log(response);
-  //       }
-  //     );
-  // };
-
-  // $scope.getDetail = function () {
-  //   var idd = window.location.href;
-  //   var res = idd.split("/");
-  //   $scope.id_mutasi = res[5];
-  //   if ($scope.id_mutasi != null) {
-  //   }
-  //   $http
-  //     .post("/ajax/mutasi/getDetailSKMutasi", {
-  //       id_mutasi: $scope.id_mutasi,
-  //     })
-  //     .then(
-  //       function successCallback(data) {
-  //         $scope.namaSK = data.data[0].no_sk;
-  //       },
-  //       function errorCallback(response) {
-  //         console.log(response);
-  //       }
-  //     );
-  //   $http
-  //     .post("/ajax/mutasi/getDataMutasi", {
-  //       id_mutasi: $scope.id_mutasi,
-  //     })
-  //     .then(
-  //       function successCallback(data) {
-  //         $scope.datas = data.data;
-  //         console.log(data.data[0].no_sk);
-  //         $scope.no_skLabel = data.data[0].no_sk;
-  //       },
-  //       function errorCallback(response) {
-  //         console.log(response);
-  //       }
-  //     );
-  // };
 
   $scope.getIDMutasiPegawai = function () {
     var idd = window.location.href;
@@ -129,6 +69,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
             $scope.id_pegawai = data.data[0].id_pegawai;
             $scope.nama = data.data[0].nama;
             $scope.nip = data.data[0].nip;
+            $scope.unit_asal = data.data[0].tempat_bekerja;
             $scope.nipnamaReadonly = true;
           },
           function errorCallback(response) {
@@ -156,15 +97,15 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
       idm = res[res.length - 1];
     }
     $scope.openModal("#detailSkMutasi");
-    $scope.modalTitle = "Edit Data Mutasi";
+    $scope.modalTitle = "Edit Data SK Mutasi";
     $http.get("/mutasi/getDetailSKMutasi/" + idm).then(
       function successCallback(data) {
         $scope.id_mutasi = data.data[0].id_mutasi;
         $scope.no_sk = data.data[0].no_sk;
         $scope.tgl_mutasi = new Date(data.data[0].tgl_mutasi);
-        // document.getElementById("myForm").reset();
-        // $scope.myForm.$setUntouched();
-        // $scope.myForm.$setPristine();
+        // document.getElementById("formMutasi").reset();
+        // $scope.formMutasi.$setUntouched();
+        // $scope.formMutasi.$setPristine();
       },
       function errorCallback(response) {
         console.log(response);
@@ -173,11 +114,11 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
   };
 
   $scope.actionbtn = function () {
-    $scope.closeModal("#detailMutasi");
+    $scope.success = $scope.error = false;
     $scope.hidesk = $scope.hidenip = $scope.hidenama = true;
     $scope.pegawaiUnique = $scope.notfoundnip = $scope.pegawaiUnique = $scope.notfoundnama = $http.nipstyle = null;
-    $scope.myForm.$setUntouched();
-    $scope.myForm.$setPristine();
+    $scope.formMutasi.$setUntouched();
+    $scope.formMutasi.$setPristine();
   };
 
   $scope.editDataSKMutasi = function () {
@@ -189,42 +130,23 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
       .then(
         function successCallback(data) {
           if (data.data.errortext != "") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
-            $scope.readOnly = false;
-            $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
+            $scope.message = data.data.errortext;
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
-            alert("Gagal Menyimpan Data");
-          } else if (data.data.nipunique == "false") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
-            $scope.readOnly = false;
-            $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
-            $scope.error = true;
-            $scope.errorMessage =
-              "Data Pegawai Sudah Terdapat Pada No SK. " + $scope.no_sk;
-            alert("Gagal Menyimpan Data");
           } else {
-            alert(data.data.message);
-            $scope.error = false;
-            $scope.errorMessage = null;
             $scope.skeditForm.$setUntouched();
             $scope.skeditForm.$setPristine();
-            // $scope.bckTo();
+            $scope.error = false;
+            $scope.message = data.data.message;
+            $scope.success = true;
+            $timeout(function () {
+              $scope.success = false;
+            }, 5000);
           }
           $scope.getSKMutasi();
         },
         function errorCallback(response) {
           $scope.error = true;
           $scope.errorMessage = "Gagal Mengubah Data";
-          alert("Gagal Mengubah Data");
           console.log(response);
         }
       );
@@ -241,7 +163,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
     $scope.actionbtn();
     console.log("detailMutasi");
     $scope.openModal("#detailMutasi");
-    $scope.modalTitle = "Detail Mutasi";
+    $scope.modalTitle = "Detail Data Mutasi";
     $scope.submitButton = "Edit";
     $scope.actionButton = "Kembali";
     $scope.typeButton = "button";
@@ -255,6 +177,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
         $scope.no_sk = data.data[0].no_sk;
         $scope.nip = $scope.nipFormat(data.data[0].nip);
         $scope.nama = data.data[0].nama;
+        $scope.unit_asal = data.data[0].unit_asal;
         $scope.unit_tujuan = data.data[0].unit_tujuan;
         $scope.status_mutasi = data.data[0].status_mutasi;
         $scope.tgl_mutasi = new Date(data.data[0].tgl_mutasi);
@@ -276,74 +199,32 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
       .then(
         function successCallback(data) {
           if (data.data.errortext != "") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
             $scope.readOnly = false;
             $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
-            alert("Gagal Menyimpan Data");
+            $scope.message = data.data.errortext;
           } else if (data.data.nipunique == "false") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
-            $scope.readOnly = false;
-            $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
             $scope.error = true;
-            $scope.errorMessage =
+            $scope.message =
               "Data Pegawai Sudah Terdapat Pada No SK. " + $scope.no_sk;
-            alert("Gagal Menyimpan Data");
           } else {
-            alert(data.data.message);
-            $scope.error = false;
-            $scope.errorMessage = null;
-            $scope.myForm.$setUntouched();
-            $scope.myForm.$setPristine();
             $scope.getDetail();
+            $scope.formMutasi.$setUntouched();
+            $scope.formMutasi.$setPristine();
+            $scope.success = true;
+            $scope.message = data.data.message;
+            $timeout(function () {
+              $scope.success = false;
+            }, 5000);
           }
         },
         function errorCallback(response) {
-          alert("error");
           console.log(response);
+          $scope.error = true;
+          $scope.message = "Gagal Mengubah Data";
         }
       );
   };
-
-  // $scope.editData = function () {
-  //   $http
-  //     .post("/mutasi/updateDataMutasi/" + $scope.id_mutasi_pegawai, {
-  //       id_mutasi: $scope.id_mutasi,
-  //       id_pegawai: $scope.id_pegawai,
-  //       unit_tujuan: $scope.unit_tujuan,
-  //       status_mutasi: $scope.status_mutasi,
-  //     })
-  //     .then(
-  //       function successCallback(data) {
-  //         console.log(data.data);
-  //         if (data.data == "gagal") {
-  //           console.log("gagal ini");
-  //           $scope.pegawaiUnique = "Pegawai Sudah Terdapat di Sistem ini aa";
-  //           alert("Gagal Update Data");
-  //           $scope.submitButton = "Edit";
-  //           $scope.actionDetail("edit");
-  //         } else {
-  //           alert("Berhasil Update Data");
-  //           $scope.pegawaiUnique = null;
-  //           $scope.message = "berhasil update data";
-  //           $scope.getDetail();
-  //         }
-  //       },
-  //       function errorCallback(response) {
-  //         alert("error");
-  //         console.log(response);
-  //       }
-  //     );
-  // };
 
   $http.get("/skp/getNameNipPeg").then(function (data) {
     $scope.nipdatas = data.data;
@@ -385,6 +266,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
           $scope.hidenip = true;
           $scope.nama = output[0].nama;
           $scope.nip = output[0].nip;
+          $scope.tempat_bekerja = output[0].tempat_bekerja;
           $scope.id_pegawai = output[0].id_pegawai;
           $scope.nipstyle = null;
           $scope.namanipC = true;
@@ -393,6 +275,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
           $scope.id_pegawai = null;
           $scope.notfoundnip = "Pilih Data Dibawah";
           $scope.nama = null;
+          $scope.unit_asal = null;
           $scope.namanipC = false;
         } else {
           $scope.nipstyle = { border: "solid red" };
@@ -405,12 +288,14 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
         $scope.namastyle = null;
         $scope.id_pegawai = null;
         $scope.nama = null;
+        $scope.unit_asal = null;
         // $scope.notfoundnip = "Masukan NIP";
         $scope.namanipC = false;
       }
     } else if (output.length == 0) {
       $scope.id_pegawai = null;
       $scope.nama = null;
+      $scope.unit_asal = null;
       $scope.hidenip = true;
       $scope.hidenama = true;
       $scope.notfoundnip = "Data Tidak Ditemukan";
@@ -451,6 +336,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
           $scope.hidenama = true;
           $scope.nama = output[0].nama;
           $scope.nip = output[0].nip;
+          $scope.unit_asal = output[0].tempat_bekerja;
           $scope.namastyle = null;
           $scope.id_pegawai = output[0].id_pegawai;
           $scope.namanipC = true;
@@ -458,20 +344,22 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
           $scope.notfoundnama = "Pilih Data Dibawah";
           $scope.notfoundnip = null;
           $scope.nip = null;
+          $scope.unit_asal = null;
           $scope.id_pegawai = null;
           $scope.namanipC = false;
         } else {
-          $scope.myForm.$setUntouched();
-          $scope.myForm.$setPristine();
+          $scope.formMutasi.$setUntouched();
+          $scope.formMutasi.$setPristine();
           $scope.notfoundnama = null;
           $scope.namastyle = { border: "solid red" };
           $scope.id_pegawai = null;
           $scope.namanipC = false;
         }
       } else {
-        $scope.myForm.$setUntouched();
-        $scope.myForm.$setPristine();
+        $scope.formMutasi.$setUntouched();
+        $scope.formMutasi.$setPristine();
         $scope.nip = null;
+        $scope.unit_asal = null;
         $scope.notfoundnama = "Data Nama Kosong";
         $scope.namastyle = { border: "solid red" };
         $scope.id_pegawai = null;
@@ -479,6 +367,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
       }
     } else if (output.length == 0) {
       $scope.nip = null;
+      $scope.unit_asal = null;
       $scope.hidenama = true;
       $scope.notfoundnama = "Data Tidak Ditemukan";
       $scope.namastyle = { border: "solid red" };
@@ -488,11 +377,12 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
     console.log($scope.namanipC);
   };
 
-  $scope.fillTextBox = function (nip, id_pegawai, nama) {
-    $scope.myForm.$setUntouched();
-    $scope.myForm.$setPristine();
+  $scope.fillTextBox = function (nip, id_pegawai, nama, unit_asal) {
+    $scope.formMutasi.$setUntouched();
+    $scope.formMutasi.$setPristine();
     $scope.nip = nip;
     $scope.nama = nama;
+    $scope.unit_asal = unit_asal;
     $scope.id_pegawai = id_pegawai;
     $scope.hidenip = true;
     $scope.hidenama = true;
@@ -514,6 +404,7 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
 
   $scope.skC = false;
   $scope.skChange = function (string) {
+    $scope.tgl_mutasi = null;
     $scope.pegawaiUnique = null;
     $scope.hidesk = false;
     var output = [];
@@ -553,8 +444,8 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
           $scope.skC = false;
         }
       } else {
-        $scope.myForm.$setUntouched();
-        $scope.myForm.$setPristine();
+        $scope.formMutasi.$setUntouched();
+        $scope.formMutasi.$setPristine();
         $scope.notfoundsk = "Masukan Nomor SK Mutasi";
         $scope.id_mutasi = null;
         $scope.tgl_mutasi = null;
@@ -592,29 +483,19 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
         function successCallback(data) {
           console.log(data);
           if (data.data.errortext != "") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
-            $scope.readOnly = false;
-            $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
-            alert("Gagal Menyimpan Data");
+            $scope.message = data.data.errortext;
           } else {
-            alert(data.data.message);
             $scope.error = false;
-            $scope.errorMessage = null;
-            $scope.myForm.$setUntouched();
-            $scope.myForm.$setPristine();
-            document.getElementById("myForm").reset();
-
-            $scope.bckTo();
+            $scope.formSkMutasi.$setUntouched();
+            $scope.formSkMutasi.$setPristine();
+            document.getElementById("formSkMutasi").reset();
+            $window.history.back();
           }
         },
         function errorCallback(response) {
-          alert("Gagal Menyimpan Data");
+          $scope.message = "Gagal Menyimpan Data";
+          $scope.error = true;
           console.log(response);
         }
       );
@@ -625,42 +506,17 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
       "/mutasi/tambahMutasi/" + $scope.id_mutasi + "/" + "mutasi";
   };
 
-  $scope.formTambah = function () {
-    var idd = window.location.href;
-    var res = idd.split("/");
-    var id_mutasi = res[res.length - 1];
-    console.log(res[4]);
-    if (res[4] != null) {
-      $scope.no_SkReadOnly = true;
-      $http
-        .post("/ajax/mutasi/getDetailSKMutasi", {
-          id_mutasi: id_mutasi,
-        })
-        .then(
-          function successCallback(data) {
-            $scope.id_mutasi = data.data[0].id_mutasi;
-            $scope.no_sk = data.data[0].no_sk;
-          },
-          function errorCallback(response) {
-            console.log("galgal");
-            console.log(response);
-          }
-        );
-    } else {
-      $scope.no_SkReadOnly = false;
-      console.log("null res");
-    }
-  };
-
   $scope.insertDataMutasi = function () {
     var idd = window.location.href;
     var res = idd.split("/");
     var id = res[5];
     // var ket = res[6];
+    // defined chekidmutasi jadi 1 untuk !=undifined dan 2 untuk undifined
     $http
       .post("/mutasi/insertDataMutasi", {
         id_mutasi: $scope.id_mutasi,
         id_pegawai: $scope.id_pegawai,
+        unit_asal: $scope.unit_asal,
         unit_tujuan: $scope.unit_tujuan,
         status_mutasi: $scope.status_mutasi,
       })
@@ -668,79 +524,60 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
         function successCallback(data) {
           console.log(data.data);
           if (data.data.errortext != "") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
-            $scope.readOnly = false;
-            $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
             $scope.error = true;
-            $scope.errorMessage = data.data.errortext;
-            alert("Gagal Menyimpan Data");
+            $scope.message = data.data.errortext;
           } else if (data.data.nipunique == "false") {
-            $scope.submitButton = "Simpan";
-            $scope.actionButton = "Batal";
-            $scope.readOnly = false;
-            $scope.optionDisabled = false;
-            $scope.typeButton = "button";
-            $scope.hapusbtn = true;
-            $scope.modalTitle = "Edit Pegawai";
             $scope.error = true;
-            $scope.errorMessage =
+            $scope.message =
               "Data Pegawai Sudah Terdapat Pada No SK. " + $scope.no_sk;
-            alert("Gagal Menyimpan Data");
           } else {
-            alert(data.data.message);
-            $scope.error = false;
-            $scope.errorMessage = null;
-            $scope.myForm.$setUntouched();
-            $scope.myForm.$setPristine();
-            $scope.id_mutasi = $scope.id_pegawai = $scope.no_sk = $scope.nip = $scope.nama = $scope.unit_tujuan = $scope.status_mutasi = null;
-            $scope.bckTo();
+            $scope.formMutasi.$setUntouched();
+            $scope.formMutasi.$setPristine();
+            $scope.id_mutasi = $scope.id_pegawai = $scope.no_sk = $scope.nip = $scope.nama = $scope.unit_tujuan = $scope.unit_asal = $scope.status_mutasi = null;
+            $window.history.back();
           }
         },
         function errorCallback(response) {
-          alert("Gagal Menyimpan Data");
+          $scope.error = true;
+          $scope.message = "Gagal Menyimpan Data";
           console.log(response);
         }
       );
   };
 
-  $scope.deleteMutasi = function (id_mutasi_pegawai, id_pegawai) {
+  $scope.deleteMutasi = function (id_mutasi_pegawai, id_pegawai, unit_asal) {
     // var idpeg = $window.location.href;
     // var res = idpeg.split("/");
     // var id_pegawai = res[5];
-    var tmp_bekerja_sebelumnya = prompt("Tempat Tugas: ");
-    if (tmp_bekerja_sebelumnya && tmp_bekerja_sebelumnya != null) {
-      $scope.error = false;
-      $scope.errorMessage = null;
+    var tmp_bekerja_sebelumnya = confirm("Ingin Menghapus Data");
+    if (tmp_bekerja_sebelumnya) {
       $http
         .post("/mutasi/deleteMutasi", {
           id_mutasi_pegawai: id_mutasi_pegawai,
           id_pegawai: id_pegawai,
-          tmp_bekerja_sebelumnya: tmp_bekerja_sebelumnya,
+          tmp_bekerja_sebelumnya: unit_asal,
         })
         .then(
           function successCallback(data) {
             console.log(data);
-            alert("Data Berhasil Dihapus");
             $scope.closeModal("#detailMutasi");
             $scope.getDetail();
+            $scope.message = "Data Berhasil Dihapus";
+            $scope.successDell = true;
+            $timeout(function () {
+              $scope.successDell = false;
+            }, 5000);
           },
           function errorCallback(response) {
             console.log(response);
+            $scope.message = "Gagal Menghapus Data";
+            $scope.errorDell = true;
+            $timeout(function () {
+              $scope.errorDell = false;
+            }, 5000);
           }
         );
-    } else {
-      alert("Gagal Hapus Data");
-      $scope.error = true;
-      $scope.errorMessage = "Data Tempat Kerja Kosong";
     }
-  };
-
-  $scope.bckTo = function () {
-    $window.history.back();
   };
 
   $scope.openModal = function (openM) {
@@ -772,6 +609,175 @@ sikepegawaian.controller("mutasi", function ($window, $scope, $http) {
     if (nip != null) {
       nippeg = nip.replace(/ /g, "");
       return nippeg;
+    }
+  };
+
+  $scope.sendMessageMutasi = function () {
+    $http
+      .post("/pesan/sendMessageMutasi", {
+        id_mutasi: $scope.id_mutasi,
+      })
+      .then(
+        function successCallback(data) {
+          $scope.successDell = true;
+          $scope.message = "Berhasil Mengirim Email";
+          $timeout(function () {
+            $scope.successDell = false;
+          }, 5000);
+        },
+        function errorCallback(response) {
+          $scope.errorDell = true;
+          $scope.message = "Gagal Mengirim Email";
+          $timeout(function () {
+            $scope.errorDell = false;
+          }, 5000);
+          console.log(response);
+        }
+      );
+  };
+
+  $scope.getRiwayatMutasi = function () {
+    var id = $window.location.href;
+    var res = id.split("/");
+    var id_pegawai = res[5];
+    console.log(id_pegawai + "get riwayat mutasi");
+    $http.get("/pegawai/getDetail/" + id_pegawai).then(
+      function successCallback(data) {
+        $scope.dataNama = data.data[0].nama;
+      },
+      function errorCallback(response) {
+        console.log(response);
+      }
+    );
+    $http.get("/mutasi/getRiwayatMutasi/" + id_pegawai).then(
+      function successCallback(data) {
+        $scope.datas = data.data;
+        console.log(data);
+      },
+      function errorCallback(response) {}
+    );
+  };
+
+  $scope.deleteRiwayatMutasi = function (
+    id_mutasi_pegawai,
+    id_pegawai,
+    unit_asal
+  ) {
+    var idpeg = $window.location.href;
+    var res = idpeg.split("/");
+    var id_pegawai = res[5];
+    var tmp_bekerja_sebelumnya = confirm("Ingin Menghapus Data");
+    if (tmp_bekerja_sebelumnya) {
+      $http
+        .post("/mutasi/deleteMutasi", {
+          id_mutasi_pegawai: id_mutasi_pegawai,
+          id_pegawai: id_pegawai,
+          tmp_bekerja_sebelumnya: unit_asal,
+        })
+        .then(
+          function successCallback(data) {
+            console.log(data);
+            $scope.getRiwayatMutasi(id_pegawai);
+            $scope.message = "Berhasil Menghapus Data";
+            $scope.successDell = true;
+            $timeout(function () {
+              $scope.successDell = false;
+            }, 5000);
+          },
+          function errorCallback(response) {
+            console.log(response);
+            $scope.message = "Gagal Menghapus Data";
+            $scope.errorDell = true;
+            $timeout(function () {
+              $scope.errorDell = false;
+            }, 5000);
+          }
+        );
+    }
+  };
+
+  $scope.updateRiwayatMutasi = function () {
+    $http
+      .post("/mutasi/updateDataMutasi/" + $scope.id_mutasi_pegawai, {
+        id_mutasi: $scope.id_mutasi,
+        id_pegawai: $scope.id_pegawai,
+        unit_tujuan: $scope.unit_tujuan,
+        unit_asal: $scope.unit_asal,
+        status_mutasi: $scope.status_mutasi,
+      })
+      .then(
+        function successCallback(data) {
+          console.log(data);
+          if (data.data.errortext != "") {
+            $scope.readOnly = false;
+            $scope.optionDisabled = false;
+            $scope.error = true;
+            $scope.message = data.data.errortext;
+          } else if (data.data.nipunique == "false") {
+            $scope.error = true;
+            $scope.message =
+              "Data Pegawai Sudah Terdapat Pada No SK. " + $scope.no_sk;
+          } else {
+            $scope.getRiwayatMutasi();
+            $scope.formMutasi.$setUntouched();
+            $scope.formMutasi.$setPristine();
+            $scope.success = true;
+            $scope.message = data.data.message;
+            $timeout(function () {
+              $scope.success = false;
+            }, 5000);
+          }
+        },
+        function errorCallback(response) {
+          alert("error");
+          console.log(response);
+        }
+      );
+  };
+
+  $scope.getDetailRiwayatMutasi = function (id) {
+    $scope.actionbtn();
+    $http.get("/mutasi/getDetailMutasi/" + id).then(
+      function successCallback(data) {
+        console.log(data);
+        $scope.openModal("#detailMutasiPeg");
+        $scope.modalTitle = "Detail Mutasi";
+        $scope.submitButton = "Update";
+        $scope.actionButton = "Kembali";
+        $scope.readOnly = true;
+        $scope.hidesk = true;
+
+        $scope.id_pegawai = data.data[0].id_pegawai;
+        $scope.id_mutasi = data.data[0].id_mutasi;
+        $scope.id_mutasi_pegawai = data.data[0].id_mutasi_pegawai;
+        $scope.no_sk = data.data[0].no_sk;
+        $scope.nip = $scope.nipFormat(data.data[0].nip);
+        $scope.nama = data.data[0].nama;
+        $scope.unit_tujuan = data.data[0].unit_tujuan;
+        $scope.unit_asal = data.data[0].unit_asal;
+        $scope.status_mutasi = data.data[0].status_mutasi;
+        $scope.tgl_mutasi = new Date(data.data[0].tgl_mutasi);
+      },
+      function errorCallback(response) {
+        console.log(response);
+      }
+    );
+  };
+
+  $scope.unduhData = function () {
+    if ($scope.id_mutasi != null) {
+      $window.location.href = "/mutasi/toExel/" + $scope.id_mutasi;
+      $scope.successDell = true;
+      $scope.message = "Berhasil Mengunduh Data";
+      $timeout(function () {
+        $scope.successDell = false;
+      }, 5000);
+    } else {
+      $scope.errorDell = true;
+      $scope.message = "Gagal Mengunduh Data";
+      $timeout(function () {
+        $scope.errorDell = false;
+      }, 5000);
     }
   };
 });

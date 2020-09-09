@@ -7,6 +7,10 @@ use App\Models\ModelMutasi;
 use App\Models\ModelPegawai;
 use App\Models\ModelUser;
 use JsonException;
+use PHPExcel;
+use PHPExcel_IOFactory;
+use PHPExcel_Style_Fill;
+use PHPExcel_Style_NumberFormat;
 
 class Mutasi extends BaseController
 {
@@ -172,23 +176,27 @@ class Mutasi extends BaseController
         $modelUser = new ModelUser();
         $dataJSON = $this->request->getJSON(true);
         $errortext[] = '';
-        $message = '';
-        $where = array('mutasi_pegawai.id_mutasi' => $dataJSON['id_mutasi']);
-        $res_idmutasi = $model->getDataMutasi($where);
-
-        // cek nip ada di no sk yang sama atau tidak
-        $c = true;
         $nipunique = null;
-        foreach ($res_idmutasi as $res) :
-            if ($dataJSON['id_pegawai'] == $res->id_pegawai) {
-                $c = false;
-            }
-        endforeach;
-
+        $message = '';
+        // mengambil unit asal pegawai
+        $where = array('id_pegawai' => $dataJSON['id_pegawai']);
+        $unitAsal = $modelpegawai->getPegawai($where);
+        // var_dump($unitAsal);
+        // die;
         if ($this->validator->run($dataJSON, 'mutasitext')) {
+            $where = array('mutasi_pegawai.id_mutasi' => $dataJSON['id_mutasi']);
+            $res_idmutasi = $model->getDataMutasi($where);
+            $c = true;
+            $nipunique = null;
+            foreach ($res_idmutasi as $res) :
+                if ($dataJSON['id_pegawai'] == $res->id_pegawai) {
+                    $c = false;
+                }
+            endforeach;
+
             if ($c == true) {
                 $model->insertDataMutasi($dataJSON);
-                $message = "Berhasil Menyimpan Data";
+                $message = "Berhasil Menyimpan Data Mutasi";
                 if ($dataJSON['status_mutasi'] == 1) {
                     $wherepeg = array('id_pegawai' => $dataJSON['id_pegawai']);
                     $dataunitbekerja = array('tempat_bekerja' => $dataJSON['unit_tujuan']);
@@ -210,6 +218,7 @@ class Mutasi extends BaseController
         } else {
             $errortext[] = implode(', ', $this->validator->getErrors());
         }
+
         $validationtext = implode('', $errortext);
         $output = array('errortext' => $validationtext, 'nipunique' => $nipunique, 'message' => $message);
         echo json_encode($output);
@@ -228,6 +237,8 @@ class Mutasi extends BaseController
         $modelPegawai = new ModelPegawai();
         $modelUser = new ModelUser();
         $dataJSON = $this->request->getJSON(true);
+        // var_dump($dataJSON);
+        // die;
         $idMutasiPegawai = array('id_mutasi_pegawai' => $dataJSON['id_mutasi_pegawai']);
 
         $wherepeg = array('id_pegawai' => $dataJSON['id_pegawai']);
@@ -247,5 +258,154 @@ class Mutasi extends BaseController
         $where = $data->id_mutasi;
         $where = array('id_mutasi' => $where);
         $model->deleteSKMutasi($where);
+    }
+
+    public function toExel($id_mutasi)
+    {
+        $model = new ModelMutasi();
+        $where = array('mutasi_pegawai.id_mutasi' => $id_mutasi);
+        $data = $model->getDataMutasi($where);
+        // var_dump($data);
+        // die;
+        $filename = '';
+
+        if (count($data) != 0) {
+            require_once(APPPATH . '\PHPExcel-1.8\Classes\PHPExcel.php');
+            include(APPPATH . '\PHPExcel-1.8\Classes\PHPExcel\Writer\Excel2007.php');
+            $object = new PHPExcel();
+            $object->getProperties()->setCreator("Admin");
+            $object->getProperties()->setLastModifiedBy("Admin");
+            $object->getProperties()->setTitle("Daftar Mutasi Pegawai");
+
+            $object->getActiveSheet()->getStyle('A1:T1')->applyFromArray(
+                array(
+                    'fill' => array(
+                        'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                        'color' => array('rgb' => 'FFFF00')
+                    )
+                )
+            );
+
+            // $object->getActiveSheet()->getStyle('')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
+
+            $object->setActiveSheetIndex(0);
+            $object->getActiveSheet()->setCellValue('A1', 'NO');
+            $object->getActiveSheet()->setCellValue('B1', 'NO SK MUTASI');
+            $object->getActiveSheet()->setCellValue('C1', 'TANGGAL MUTASI');
+            $object->getActiveSheet()->setCellValue('D1', 'NIP');
+            $object->getActiveSheet()->setCellValue('E1', 'NAMA');
+            $object->getActiveSheet()->setCellValue('F1', 'UNIT ASAL');
+            $object->getActiveSheet()->setCellValue('G1', 'UNIT TUJUAN');
+            $object->getActiveSheet()->setCellValue('H1', 'STATUS MUTASI');
+
+            $baris = 2;
+            $no = 1;
+            foreach ($data as $key) {
+                $object->getActiveSheet()->setCellValue('A' . $baris, $no++);
+                $object->getActiveSheet()->setCellValue('B' . $baris, $key->no_sk);
+                $object->getActiveSheet()->setCellValue('C' . $baris, $key->tgl_mutasi);
+                $object->getActiveSheet()->setCellValue('D' . $baris, ("'" . $key->nip));
+                $object->getActiveSheet()->setCellValue('E' . $baris, $key->nama);
+                $object->getActiveSheet()->setCellValue('F' . $baris, $key->unit_tujuan);
+                $object->getActiveSheet()->setCellValue('G' . $baris, $key->unit_asal);
+                $object->getActiveSheet()->setCellValue('H' . $baris, $key->status_mutasi);
+
+                $baris++;
+                $filename = 'Data MUTASI No SK' . $key->no_sk . '.xlsx';
+            }
+            // Save Excel 2007 file
+            #echo date('H:i:s') . " Write to Excel2007 format\n";
+            $objWriter = PHPExcel_IOFactory::createWriter($object, 'Excel2007');
+            ob_end_clean();
+            // We'll be outputting an excel file
+            header('Content-type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            $objWriter->save('php://output');
+            exit;
+        }
+    }
+
+    public function toExeld($id_mutasi_pegawai)
+    {
+        $model = new ModelMutasi();
+        $where = array('id_mutasi_pegawai' => $id_mutasi_pegawai);
+        $data = $model->getSkps($where);
+
+        if (count($data) != 0) {
+            require_once(APPPATH . '\PHPExcel-1.8\Classes\PHPExcel.php');
+            include(APPPATH . '\PHPExcel-1.8\Classes\PHPExcel\Writer\Excel2007.php');
+            $object = new PHPExcel();
+            $object->getProperties()->setCreator("Admin");
+            $object->getProperties()->setLastModifiedBy("Admin");
+            $object->getProperties()->setTitle("Daftar SKP Tahun " . $tahun);
+
+            $object->getActiveSheet()->getStyle('A1:T1')->applyFromArray(
+                array(
+                    'fill' => array(
+                        'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                        'color' => array('rgb' => 'FFFF00')
+                    )
+                )
+            );
+
+            $object->getActiveSheet()->getStyle('B')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
+
+            $object->setActiveSheetIndex(0);
+            $object->getActiveSheet()->setCellValue('A1', 'NO');
+            $object->getActiveSheet()->setCellValue('B1', 'NIP');
+            $object->getActiveSheet()->setCellValue('C1', 'NAMA');
+            $object->getActiveSheet()->setCellValue('D1', 'NAMA_ATASANPEJABATPENILAI');
+            $object->getActiveSheet()->setCellValue('E1', 'NIP_ATASANPEJABATPENILAI');
+            $object->getActiveSheet()->setCellValue('F1', 'NAMA_PEJABATPENILAI');
+            $object->getActiveSheet()->setCellValue('G1', 'NIP_PEJABATPENILAI');
+            $object->getActiveSheet()->setCellValue('H1', 'TAHUN');
+            $object->getActiveSheet()->setCellValue('I1', 'NILAI_SKP');
+            $object->getActiveSheet()->setCellValue('J1', 'ORIENTASI_PELAYANAN');
+            $object->getActiveSheet()->setCellValue('K1', 'INTEGRITAS');
+            $object->getActiveSheet()->setCellValue('L1', 'KOMITMEN');
+            $object->getActiveSheet()->setCellValue('M1', 'DISIPLIN');
+            $object->getActiveSheet()->setCellValue('N1', 'KERJASAMA');
+            $object->getActiveSheet()->setCellValue('O1', 'KEPEMIMPINAN');
+            $object->getActiveSheet()->setCellValue('P1', 'STATUS_PENILAI');
+            $object->getActiveSheet()->setCellValue('Q1', 'STATUS_ATASAN_PENILAI');
+            $object->getActiveSheet()->setCellValue('R1', 'UNOR_NAMA'); //JABATAN
+            $object->getActiveSheet()->setCellValue('S1', 'UNOR_INDUK_NAMA'); //TMP BEKERJA
+
+            $baris = 2;
+            $no = 1;
+            foreach ($data as $key) {
+                $object->getActiveSheet()->setCellValue('A' . $baris, $no++);
+                $object->getActiveSheet()->setCellValue('B' . $baris, ("'" . $key->nip));
+                $object->getActiveSheet()->setCellValue('C' . $baris, $key->nama);
+                $object->getActiveSheet()->setCellValue('D' . $baris, $key->nama_atasan_pejpen);
+                $object->getActiveSheet()->setCellValue('E' . $baris, ("'" . $key->nip_atasan_pejpen));
+                $object->getActiveSheet()->setCellValue('F' . $baris, $key->nama_pejpen);
+                $object->getActiveSheet()->setCellValue('G' . $baris, ("'" . $key->nip_pejpen));
+                $object->getActiveSheet()->setCellValue('H' . $baris, $key->tahun_skp);
+                $object->getActiveSheet()->setCellValue('I' . $baris, $key->nilai_skp);
+                $object->getActiveSheet()->setCellValue('J' . $baris, $key->nilai_pelayanan);
+                $object->getActiveSheet()->setCellValue('K' . $baris, $key->nilai_integritas);
+                $object->getActiveSheet()->setCellValue('L' . $baris, $key->nilai_komitmen);
+                $object->getActiveSheet()->setCellValue('M' . $baris, $key->nilai_disiplin);
+                $object->getActiveSheet()->setCellValue('N' . $baris, $key->nilai_kerjasama);
+                $object->getActiveSheet()->setCellValue('O' . $baris, $key->nilai_kepemimpinan);
+                $object->getActiveSheet()->setCellValue('P' . $baris, $key->status_pejpen);
+                $object->getActiveSheet()->setCellValue('Q' . $baris, $key->status_atasan_pejpen);
+                $object->getActiveSheet()->setCellValue('R' . $baris, $key->nama_jabatan);
+                $object->getActiveSheet()->setCellValue('S' . $baris, $key->tempat_bekerja);
+
+                $baris++;
+            }
+            // Save Excel 2007 file
+            #echo date('H:i:s') . " Write to Excel2007 format\n";
+            $filename = 'Data SKP Tahun' . $tahun . '.xlsx';
+            $objWriter = PHPExcel_IOFactory::createWriter($object, 'Excel2007');
+            ob_end_clean();
+            // We'll be outputting an excel file
+            header('Content-type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            $objWriter->save('php://output');
+            exit;
+        }
     }
 }

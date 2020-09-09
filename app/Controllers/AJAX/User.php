@@ -20,47 +20,50 @@ class User extends BaseController
 
     public function insertData()
     {
-        $errorfoto[] = null;
-        $errortext[] = null;
+        $error[] = null;
         $message = null;
-
         $model = new ModelUser();
         $dataJSON = $this->request->getPost();
         $fileFoto = $this->request->getFile('foto');
         $foto = array('foto' => $fileFoto);
+
+        if ($dataJSON['email'] == 'undefined') {
+            $dataJSON['email'] = null;
+        }
+        if ($dataJSON['password'] == 'undefined') {
+            $dataJSON['password'] = null;
+        }
+        if ($dataJSON['repass'] == 'undefined') {
+            $dataJSON['repass'] = null;
+        }
+
         $datatext = array(
             'email' => $dataJSON['email'],
             'password' => $dataJSON['password'],
             'repass' => $dataJSON['repass'],
-            'role' => $dataJSON['role'],
         );
-        if ($this->validator->run($datatext, 'usertext')) {
-            if ($this->validator->run($foto, 'userfoto')) {
-                $data = array(
-                    'email' => $dataJSON['email'],
-                    'password' => password_hash($dataJSON['password'], PASSWORD_DEFAULT),
-                    'foto' => $foto['foto']->getRandomName(),
-                    'role' => $dataJSON['role'],
-                    'status' => $dataJSON['status'],
-                );
-                if ($foto['foto']->move("./foto", $data['foto'])) {
-                    $message = "Berhasil Menyimpan Data";
-                    $model->insertData($data);
-                } else {
-                    $errorfoto[] = "Gagal Menyimpan Foto";
-                }
+        if ($this->validator->run($datatext, 'usertext') && $this->validator->run($foto, 'userfoto')) {
+            $data = array(
+                'email' => $dataJSON['email'],
+                'password' => password_hash($dataJSON['password'], PASSWORD_DEFAULT),
+                'foto' => $foto['foto']->getRandomName(),
+                'role' => '1',
+                'status' => '1',
+            );
+            if ($foto['foto']->move("./foto", $data['foto'])) {
+                $message = "Berhasil Menyimpan Data";
+                $model->insertData($data);
             } else {
-                $errorfoto[] = implode(', ', $this->validator->getErrors());
+                $error[] = "Gagal Menyimpan Foto";
             }
         } else {
             if ($this->validator->run($foto, 'userfoto')) {
-                $errorfoto[] = implode(', ', $this->validator->getErrors());
+                $error[] = implode(', ', $this->validator->getErrors());
             }
-            $errortext[] = implode(', ', $this->validator->getErrors());
+            $error[] = implode(', ', $this->validator->getErrors());
         }
-        $validationtext = implode("", $errortext);
-        $validationfoto = implode("", $errorfoto);
-        $output = array('errortext' => $validationtext, 'errorfoto' => $validationfoto, 'message' => $message);
+        $validationtext = implode("", $error);
+        $output = array('errortext' => $validationtext, 'message' => $message);
         echo json_encode($output);
     }
 
@@ -73,8 +76,7 @@ class User extends BaseController
 
     public function updateData($id_user)
     {
-        $errorfoto[] = null;
-        $errortext[] = null;
+        $error[] = null;
         $message = null;
         $model = new ModelUser();
         $dataJSON = $this->request->getPost();
@@ -82,43 +84,45 @@ class User extends BaseController
         $foto = array('foto' => $fileFoto);
         $where = array('id_user' => $id_user);
         $fileLama = $this->request->getPost('fileLama');
-        // var_dump($dataJSON);
-        // die;
-        // cek apakah update data isi password apa tidak
-        if ($dataJSON['password'] == 'undefined' || $dataJSON['password'] == '' || $dataJSON['password'] == 'null') {
+        // jika tidak update password
+        if ($dataJSON['password'] == 'null' || $dataJSON['password'] == '' || $dataJSON['password'] == 'undefined') {
             $datatext = array(
                 'email' => $dataJSON['email'],
                 'status' => $dataJSON['status'],
                 'role' => $dataJSON['role']
             );
             if ($this->validator->run($datatext, 'usertextEdit')) {
-                $message = "Data Berhasil Dirubah";
-                $model->updateData($where, $datatext);
-                if ($this->validator->run($foto, 'userfoto')) {
-                    $fotoName = $fileFoto->getRandomName();
-                    if ($fileFoto->move("./foto", $fotoName)) {
-                        $data = array(
-                            'foto' => $fotoName,
-                        );
-                        $model->updateData($where, $data);
-                        if ($fileLama != null) {
-                            $fileFoto = $this->request->getFile('fileLama');
-                            unlink("." . $fileLama);
+                // jika mengubah foto
+                if ($this->validator->run($foto, 'uploaded')) {
+                    if ($this->validator->run($foto, 'userfotoEdit')) {
+                        $message = "Berhasil Mengubah Data";
+                        $model->updateData($where, $datatext);
+                        $fotoName = $fileFoto->getRandomName();
+                        if ($fileFoto->move("./foto", $fotoName)) {
+                            $data = array(
+                                'foto' => $fotoName,
+                            );
+                            $model->updateData($where, $data);
+                            if ($fileLama != null) {
+                                $fileFoto = $this->request->getFile('fileLama');
+                                unlink("." . $fileLama);
+                            }
+                        } else {
+                            $error[] = "Gagal Menyimpan Foto";
                         }
                     } else {
-                        $errorfoto[] = "Gagal Menyimpan Foto";
+                        $error[] = implode(', ', $this->validator->getErrors());
                     }
                 } else {
-                    $errorfoto[] = implode(', ', $this->validator->getErrors());
+                    $message = "Berhasil Mengubah Data";
+                    $model->updateData($where, $datatext);
                 }
             } else {
-                if ($this->validator->run($foto, 'userfoto')) {
-                    $errorfoto[] = implode(', ', $this->validator->getErrors());
-                }
-                $errortext[] = implode(', ', $this->validator->getErrors());
+                $error[] = implode(', ', $this->validator->getErrors());
             }
+            // jika tidak update password
         } else {
-            if ($dataJSON['repass'] == 'undefined' || $dataJSON['repass'] == '' || $dataJSON['repass'] == 'null') {
+            if ($dataJSON['repass'] == '' || $dataJSON['repass'] == 'null' || $dataJSON['repass'] == 'undefined') {
                 $datatext = array(
                     'email' => $dataJSON['email'],
                     'status' => $dataJSON['status'],
@@ -142,36 +146,38 @@ class User extends BaseController
                     'password' => password_hash($dataJSON['password'], PASSWORD_DEFAULT),
                     'role' => $dataJSON['role']
                 );
-                $message = "Data Berhasil Dirubah";
-                $model->updateData($where, $data);
-                if ($this->validator->run($foto, 'userfoto')) {
-                    $fotoName = $fileFoto->getRandomName();
-                    if ($fileFoto->move("./foto", $fotoName)) {
-                        $data = array(
-                            'foto' => $fotoName,
-                        );
+                // jika mengubah foto
+                if ($this->validator->run($foto, 'uploaded')) {
+                    if ($this->validator->run($foto, 'userfotoEdit')) {
+                        $message = "Berhasil Mengubah Data";
                         $model->updateData($where, $data);
-                        if ($fileLama != null) {
-                            $fileFoto = $this->request->getFile('fileLama');
-                            unlink("." . $fileLama);
+                        $fotoName = $fileFoto->getRandomName();
+                        if ($fileFoto->move("./foto", $fotoName)) {
+                            $data = array(
+                                'foto' => $fotoName,
+                            );
+                            $model->updateData($where, $data);
+                            if ($fileLama != null) {
+                                $fileFoto = $this->request->getFile('fileLama');
+                                unlink("." . $fileLama);
+                            }
+                        } else {
+                            $error[] = "Gagal Menyimpan Foto";
                         }
                     } else {
-                        $errorfoto[] = "Gagal Menyimpan Foto";
+                        $error[] = implode(', ', $this->validator->getErrors());
                     }
                 } else {
-                    $errorfoto[] = implode(', ', $this->validator->getErrors());
+                    $message = "Berhasil Mengubah Data";
+                    $model->updateData($where, $datatext);
                 }
             } else {
-                if ($this->validator->run($foto, 'userfoto')) {
-                    $errorfoto[] = implode(', ', $this->validator->getErrors());
-                }
-                $errortext[] = implode(', ', $this->validator->getErrors());
+                $error[] = implode(', ', $this->validator->getErrors());
             }
         }
 
-        $validationtext = implode("", $errortext);
-        $validationfoto = implode("", $errorfoto);
-        $output = array('errortext' => $validationtext, 'errorfoto' => $validationfoto, 'message' => $message);
+        $validationtext = implode("", $error);
+        $output = array('errortext' => $validationtext, 'message' => $message);
         echo json_encode($output);
     }
 }
